@@ -3,7 +3,7 @@ from pathlib import Path
 import setproctitle
 from ojitos369.errors import CatchErrors as CE
 
-setproctitle.setproctitle('reapi-py')
+setproctitle.setproctitle('dimthi-py')
 
 # ----------------------   BASE   ----------------------
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -32,8 +32,17 @@ email_settings = {
     'password': os.environ.get('EMAIL_HOST_PASSWORD', None),
 }
 
+# ----------------------   DATABASE   ----------------------
+db_data = {
+    "host": os.environ.get('DB_HOST'),
+    "user": os.environ.get('DB_USER'),
+    "password": os.environ.get('DB_PASSWORD'),
+    "name": os.environ.get('DB_NAME'),
+    "port": os.environ.get('DB_PORT', '5432'),
+}
+
 # ----------------------   ERROR   ----------------------
 class MYE(Exception):
     pass
 
-ce = CE(name_project = 'REAPI', email_settings = email_settings)
+ce = CE(name_project = 'DIMTHI', email_settings = email_settings)

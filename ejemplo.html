@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Costos 3D | Ojitos Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Industrial Finance -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { slate: { 850: '#1e293b', 900: '#0f172a' } }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #f8fafc; color: #1e293b; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .slider-thumb::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #2563eb; cursor: pointer; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        
+        /* Custom scrollbar para la biblioteca */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">⚡</span>
+                <h1 class="font-bold text-xl tracking-wide">3D Cost Architect <span class="text-blue-400 text-sm font-normal">| MX 2026</span></h1>
+            </div>
+            <div class="text-xs text-slate-400 hidden sm:block">
+                Modo: Ojitos Dev
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
+
+        <section id="calculator" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- CONTROLES E INPUTS -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Ajustes Generales -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 pb-2 border-b">⏱️ Tiempo y Energía</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Tiempo dividido -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Duración de la Impresión</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="flex items-center border border-slate-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-shadow">
+                                        <input type="number" id="timeHours" min="0" value="4" class="w-full p-2 outline-none text-center">
+                                        <span class="bg-slate-50 px-3 py-2 text-sm text-slate-500 border-l border-slate-300">hrs</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center border border-slate-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-shadow">
+                                        <input type="number" id="timeMinutes" min="0" max="59" value="30" class="w-full p-2 outline-none text-center">
+                                        <span class="bg-slate-50 px-3 py-2 text-sm text-slate-500 border-l border-slate-300">min</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarifa CFE -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Rango de Consumo (CFE)</label>
+                            <select id="energyTariff" class="w-full p-2 border border-slate-300 rounded bg-white text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-shadow">
+                                <option value="1.20">Residencial Básico (~$1.20/kWh)</option>
+                                <option value="3.85" selected>Tarifa DAC / Alto (~$3.85/kWh)</option>
+                                <option value="4.50">Comercial PDBT (~$4.50/kWh)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NUEVA BIBLIOTECA DE MATERIALES -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                        Biblioteca de Materiales
+                    </h3>
+
+                    <!-- Formulario de Guardado -->
+                    <div class="border border-slate-200 rounded-lg p-4 mb-5 bg-slate-50/50">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                            <div class="sm:col-span-6">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wider">Nombre del Perfil</label>
+                                <input type="text" id="newProfileName" placeholder="Ej. PLA Esun Rojo..." class="w-full p-2 border border-slate-300 rounded text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wider text-center">Color</label>
+                                <input type="color" id="newProfileColor" value="#b91c1c" class="w-full h-[38px] p-0.5 border border-slate-300 rounded cursor-pointer bg-white">
+                            </div>
+                            <div class="sm:col-span-4">
+                                <button type="button" id="saveProfileBtn" class="w-full bg-slate-850 hover:bg-slate-700 text-white font-medium p-2 rounded text-sm transition-colors shadow-sm">
+                                    Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grid de Perfiles Guardados -->
+                    <div id="profilesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 max-h-52 overflow-y-auto custom-scrollbar pr-1">
+                        <!-- Las tarjetas se inyectan aquí con JS -->
+                    </div>
+
+                    <!-- Consumos e Insumos Activos -->
+                    <div class="pt-4 border-t border-slate-200">
+                        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Configuración Activa</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs text-slate-600 mb-1">Peso FDM (g)</label>
+                                <div class="flex items-center border border-slate-300 rounded overflow-hidden">
+                                    <input type="number" id="fdmWeight" value="45" class="w-full p-2 text-sm outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-600 mb-1">Vol. Resina (ml)</label>
+                                <div class="flex items-center border border-slate-300 rounded overflow-hidden">
+                                    <input type="number" id="resinVol" value="30" class="w-full p-2 text-sm outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-100">
+                                <span class="text-sm text-slate-700">Filamento (1kg)</span>
+                                <div class="flex items-center"><span class="text-slate-400 mr-1">$</span><input type="number" id="filamentCost" value="300" class="w-20 p-1 text-right text-sm border border-slate-300 rounded outline-none focus:border-blue-500"></div>
+                            </div>
+                            <div class="flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-100">
+                                <span class="text-sm text-slate-700">Resina (1L)</span>
+                                <div class="flex items-center"><span class="text-slate-400 mr-1">$</span><input type="number" id="resinCost" value="500" class="w-20 p-1 text-right text-sm border border-slate-300 rounded outline-none focus:border-purple-500"></div>
+                            </div>
+                            <div class="flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-100">
+                                <span class="text-sm text-slate-700">Alcohol IPA (1L)</span>
+                                <div class="flex items-center"><span class="text-slate-400 mr-1">$</span><input type="number" id="ipaCost" value="100" class="w-20 p-1 text-right text-sm border border-slate-300 rounded outline-none focus:border-slate-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post-Proceso y Margen -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Mano de Obra (Post-proceso)</label>
+                            <div class="flex items-center border border-slate-300 rounded overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-shadow">
+                                <input type="number" id="laborTime" min="0" value="0" class="w-full p-2 outline-none text-center">
+                                <span class="bg-slate-50 px-3 py-2 text-sm text-slate-500 border-l border-slate-300">min</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100">
+                            <label class="block text-sm font-medium text-emerald-700 mb-1">Margen de Utilidad Deseado (%)</label>
+                            <input type="number" id="marginPercent" value="20" class="w-full p-2 border border-emerald-200 bg-emerald-50 rounded focus:ring-2 focus:ring-emerald-500 font-bold text-emerald-800 text-center text-lg outline-none transition-shadow">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RESULTADOS Y GRAFICAS -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- FDM Result -->
+                    <div class="bg-white rounded-xl card-shadow overflow-hidden border-t-4 border-blue-500">
+                        <div class="p-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center">
+                            <h4 class="font-bold text-blue-900 text-sm">FDM: Ender 3 V3 KE</h4>
+                        </div>
+                        <div class="p-5 text-center">
+                            <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Precio de Venta Sugerido</p>
+                            <div class="text-3xl font-extrabold text-slate-800 mb-2">
+                                $<span id="fdmPrice">0.00</span>
+                            </div>
+                            <div class="text-xs text-emerald-600 font-medium bg-emerald-50 inline-block px-2 py-1 rounded-full mb-4">
+                                Utilidad: $<span id="fdmProfit">0.00</span>
+                            </div>
+                            
+                            <div class="space-y-1 text-left text-xs border-t pt-3">
+                                <div class="flex justify-between"><span class="text-slate-500">Material:</span><span class="font-bold text-slate-700">$<span id="fdmMatCost">0.00</span></span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Energía:</span><span class="font-bold text-slate-700">$<span id="fdmEnergyCost">0.00</span></span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Desgaste:</span><span class="font-bold text-slate-700">$<span id="fdmMachCost">0.00</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resin Result -->
+                    <div class="bg-white rounded-xl card-shadow overflow-hidden border-t-4 border-purple-500">
+                        <div class="p-3 bg-purple-50 border-b border-purple-100 flex justify-between items-center">
+                            <h4 class="font-bold text-purple-900 text-sm">SLA: Photon 4K</h4>
+                        </div>
+                        <div class="p-5 text-center">
+                            <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Precio de Venta Sugerido</p>
+                            <div class="text-3xl font-extrabold text-slate-800 mb-2">
+                                $<span id="resinPrice">0.00</span>
+                            </div>
+                            <div class="text-xs text-emerald-600 font-medium bg-emerald-50 inline-block px-2 py-1 rounded-full mb-4">
+                                Utilidad: $<span id="resinProfit">0.00</span>
+                            </div>
+
+                            <div class="space-y-1 text-left text-xs border-t pt-3">
+                                <div class="flex justify-between"><span class="text-slate-500">Resina+IPA:</span><span class="font-bold text-slate-700">$<span id="resinMatCost">0.00</span></span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Energía:</span><span class="font-bold text-slate-700">$<span id="resinEnergyCost">0.00</span></span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Desgaste:</span><span class="font-bold text-slate-700">$<span id="resinMachCost">0.00</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfica -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h4 class="text-lg font-bold text-slate-800 mb-4">Estructura de Costos Comparada</h4>
+                    <div class="chart-container">
+                        <canvas id="costComparisonChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- CONSTANTES ---
+        const constants = {
+            labor: { rate_mxn_hr: 80.00 },
+            general: { failure_rate: 0.10 },
+            fdm: { power_kw: 0.15, dep_hr: 1.20, cons_hr: 0.30 },
+            resin: { power_kw: 0.045, dep_hr: 1.00, lcd_hr: 0.40, fep_hr: 1.50, ipa_per_print: 0.02 }
+        };
+
+        // --- ESTADO INICIAL ---
+        let state = {
+            timeHours: 4,
+            timeMinutes: 30,
+            energyTariff: 3.85,
+            fdmWeightG: 45,
+            resinVolMl: 30,
+            laborMinutes: 15,
+            costs: { filament: 320, resin: 750, ipa: 120 },
+            marginPercent: 35,
+            activeProfileId: null // Para rastrear qué tarjeta está seleccionada
+        };
+
+        let chart = null;
+
+        // --- INICIALIZACIÓN DE LA APP ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            seedDefaultProfiles(); // Pone unos de ejemplo si está vacío
+            renderProfiles();
+            setupListeners();
+            calculate();
+        });
+
+        // --- LÓGICA DE LA BIBLIOTECA DE PERFILES ---
+        function getProfiles() {
+            return JSON.parse(localStorage.getItem('3dMaterialsLib')) || {};
+        }
+
+        function saveProfiles(profiles) {
+            localStorage.setItem('3dMaterialsLib', JSON.stringify(profiles));
+        }
+
+        function seedDefaultProfiles() {
+            const profiles = getProfiles();
+            if (Object.keys(profiles).length === 0) {
+                profiles['default_1'] = { id: 'default_1', name: 'PLA Blanco Genérico', color: '#f8fafc', filament: 320, resin: 750, ipa: 120 };
+                profiles['default_2'] = { id: 'default_2', name: 'Resina ABS-Like Negra', color: '#1e293b', filament: 450, resin: 850, ipa: 120 };
+                saveProfiles(profiles);
+            }
+        }
+
+        function renderProfiles() {
+            const container = document.getElementById('profilesGrid');
+            container.innerHTML = '';
+            const profiles = getProfiles();
+            const keys = Object.keys(profiles);
+
+            if (keys.length === 0) {
+                container.innerHTML = '<p class="text-sm text-slate-400 col-span-2 text-center py-4">No hay materiales guardados.</p>';
+                return;
+            }
+
+            keys.forEach(id => {
+                const p = profiles[id];
+                const isActive = state.activeProfileId === id;
+                
+                // Clases dinámicas estilo la imagen
+                const cardClasses = isActive 
+                    ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500" 
+                    : "border-slate-200 hover:border-blue-300 bg-white hover:bg-slate-50";
+                
+                const titleClasses = isActive ? "text-blue-800 font-bold" : "text-slate-700 font-semibold";
+
+                const card = document.createElement('div');
+                card.className = `relative flex items-center p-3 border rounded-lg cursor-pointer transition-all duration-200 group ${cardClasses}`;
+                // Hacemos que todo el div sea clickeable
+                card.onclick = (e) => {
+                    // Evitar que el clic en el botón de borrar seleccione la tarjeta
+                    if(e.target.closest('button')) return; 
+                    selectProfile(id);
+                };
+
+                card.innerHTML = `
+                    <div class="flex items-center w-full">
+                        <input type="radio" name="materialProfile" class="mr-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 pointer-events-none" ${isActive ? 'checked' : ''}>
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center mb-0.5">
+                                <span class="w-3 h-3 rounded-full mr-2 shrink-0 border border-slate-200" style="background-color: ${p.color}"></span>
+                                <p class="text-[13px] truncate ${titleClasses}">${p.name}</p>
+                            </div>
+                            <p class="text-[11px] text-slate-500 truncate pl-5">F: $${p.filament} | R: $${p.resin}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón eliminar (visible en hover) -->
+                    <button type="button" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1" onclick="deleteProfile('${id}')" title="Eliminar perfil">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectProfile(id) {
+            const profiles = getProfiles();
+            if (profiles[id]) {
+                const p = profiles[id];
+                state.activeProfileId = id;
+                
+                // Actualizar inputs visuales
+                document.getElementById('filamentCost').value = p.filament;
+                document.getElementById('resinCost').value = p.resin;
+                document.getElementById('ipaCost').value = p.ipa;
+                
+                // Actualizar estado interno
+                state.costs.filament = parseFloat(p.filament);
+                state.costs.resin = parseFloat(p.resin);
+                state.costs.ipa = parseFloat(p.ipa);
+                
+                renderProfiles(); // Re-render para mostrar selección
+                calculate();
+            }
+        }
+
+        function deleteProfile(id) {
+            if (confirm('¿Estás seguro de eliminar este material?')) {
+                const profiles = getProfiles();
+                delete profiles[id];
+                saveProfiles(profiles);
+                
+                if (state.activeProfileId === id) {
+                    state.activeProfileId = null; // Deseleccionar si se borró el activo
+                }
+                renderProfiles();
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        function setupListeners() {
+            
+            // Botón Guardar Perfil
+            document.getElementById('saveProfileBtn').addEventListener('click', () => {
+                const name = document.getElementById('newProfileName').value.trim();
+                const color = document.getElementById('newProfileColor').value;
+                
+                if (!name) {
+                    alert("¡Hey! Ponle un nombre al material primero.");
+                    document.getElementById('newProfileName').focus();
+                    return;
+                }
+                
+                const profiles = getProfiles();
+                const newId = 'prof_' + Date.now();
+                
+                profiles[newId] = {
+                    id: newId,
+                    name: name,
+                    color: color,
+                    filament: state.costs.filament,
+                    resin: state.costs.resin,
+                    ipa: state.costs.ipa
+                };
+                
+                saveProfiles(profiles);
+                
+                // Limpiar form y seleccionar el nuevo
+                document.getElementById('newProfileName').value = '';
+                selectProfile(newId); 
+            });
+
+            // Función genérica para bindear inputs
+            const bindInput = (id, updater, breaksProfile = false) => {
+                document.getElementById(id).addEventListener('input', (e) => {
+                    let val = parseFloat(e.target.value) || 0;
+                    updater(val);
+                    
+                    // Si se modifica un precio manualmente, deseleccionamos la tarjeta visualmente
+                    if (breaksProfile && state.activeProfileId !== null) {
+                        state.activeProfileId = null;
+                        renderProfiles();
+                    }
+                    
+                    calculate();
+                });
+            };
+
+            // Inputs generales (no rompen el perfil seleccionado)
+            bindInput('timeHours', v => state.timeHours = v);
+            bindInput('timeMinutes', v => {
+                if(v > 59) { v = 59; document.getElementById('timeMinutes').value = 59; }
+                state.timeMinutes = v;
+            });
+            bindInput('energyTariff', v => state.energyTariff = v);
+            bindInput('fdmWeight', v => state.fdmWeightG = v);
+            bindInput('resinVol', v => state.resinVolMl = v);
+            bindInput('laborTime', v => state.laborMinutes = v);
+            bindInput('marginPercent', v => state.marginPercent = v);
+
+            // Inputs de costos (SÍ rompen el perfil seleccionado porque los estás alterando a mano)
+            bindInput('filamentCost', v => state.costs.filament = v, true);
+            bindInput('resinCost', v => state.costs.resin = v, true);
+            bindInput('ipaCost', v => state.costs.ipa = v, true);
+        }
+
+        // --- CÁLCULOS MATEMÁTICOS ---
+        function calculate() {
+            // Tiempo total en formato decimal
+            const totalHours = state.timeHours + (state.timeMinutes / 60);
+
+            // 1. FDM
+            const fdmMat = (state.fdmWeightG / 1000) * state.costs.filament;
+            const fdmEnergy = totalHours * constants.fdm.power_kw * state.energyTariff;
+            const fdmMach = totalHours * (constants.fdm.dep_hr + constants.fdm.cons_hr);
+            const labor = (state.laborMinutes / 60) * constants.labor.rate_mxn_hr;
+            
+            const fdmTotalCost = (fdmMat + fdmEnergy + fdmMach + labor) * (1 + constants.general.failure_rate);
+            const fdmPrice = fdmTotalCost / (1 - (state.marginPercent / 100));
+            const fdmProfit = fdmPrice - fdmTotalCost;
+
+            // 2. Resina
+            const resinMat = ((state.resinVolMl / 1000) * state.costs.resin) + (constants.resin.ipa_per_print * state.costs.ipa);
+            const resinEnergy = totalHours * constants.resin.power_kw * state.energyTariff;
+            const resinMach = totalHours * (constants.resin.dep_hr + constants.resin.lcd_hr + constants.resin.fep_hr);
+            
+            const resinTotalCost = (resinMat + resinEnergy + resinMach + labor) * (1 + constants.general.failure_rate);
+            const resinPrice = resinTotalCost / (1 - (state.marginPercent / 100));
+            const resinProfit = resinPrice - resinTotalCost;
+
+            // 3. Render numérico
+            document.getElementById('fdmPrice').innerText = fdmPrice.toFixed(2);
+            document.getElementById('fdmProfit').innerText = fdmProfit.toFixed(2);
+            document.getElementById('fdmMatCost').innerText = fdmMat.toFixed(2);
+            document.getElementById('fdmEnergyCost').innerText = fdmEnergy.toFixed(2);
+            document.getElementById('fdmMachCost').innerText = fdmMach.toFixed(2);
+
+            document.getElementById('resinPrice').innerText = resinPrice.toFixed(2);
+            document.getElementById('resinProfit').innerText = resinProfit.toFixed(2);
+            document.getElementById('resinMatCost').innerText = resinMat.toFixed(2);
+            document.getElementById('resinEnergyCost').innerText = resinEnergy.toFixed(2);
+            document.getElementById('resinMachCost').innerText = resinMach.toFixed(2);
+
+            updateChart(
+                [fdmMat, fdmEnergy, fdmMach, labor, fdmProfit],
+                [resinMat, resinEnergy, resinMach, labor, resinProfit]
+            );
+        }
+
+        // --- GRÁFICOS ---
+        function initChart() {
+            const ctx = document.getElementById('costComparisonChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ender 3 (FDM)', 'Photon 4K (Resina)'],
+                    datasets: [
+                        { label: 'Material', data: [0,0], backgroundColor: '#3b82f6' },
+                        { label: 'Energía', data: [0,0], backgroundColor: '#eab308' },
+                        { label: 'Máquina', data: [0,0], backgroundColor: '#64748b' },
+                        { label: 'Labor', data: [0,0], backgroundColor: '#f43f5e' },
+                        { label: 'Utilidad', data: [0,0], backgroundColor: '#10b981' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { tooltip: { callbacks: { label: c => c.dataset.label + ': $' + c.raw.toFixed(2) } } },
+                    scales: { x: { stacked: true }, y: { stacked: true } }
+                }
+            });
+        }
+
+        function updateChart(d1, d2) {
+            if (!chart) return;
+            for(let i=0; i<5; i++) {
+                chart.data.datasets[i].data = [d1[i], d2[i]];
+            }
+            chart.update();
+        }
+    </script>
+</body>
+</html>
