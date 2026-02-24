@@ -4,9 +4,15 @@ import { cambiarThema } from '../Core/helper';
 import { Theme } from '../Components/Theme';
 
 import { Main as MainPage } from '../Pages/Main';
-import { Index as IndexPage } from '../Pages/Index';
 import { Test as TestPage } from '../Pages/Test';
-import { Chat as ChatPage } from '../Pages/Chat';
+import { Calculadora as CalculadoraPage } from '../Pages/Calculadora';
+import { Catalogo as CatalogoPage } from '../Pages/Catalogo';
+import { CatFilamentos } from '../Pages/Catalogos/Filamentos';
+import { CatResinas } from '../Pages/Catalogos/Resinas';
+import { Modelos as ModelosPage } from '../Pages/Modelos';
+import { ManejoFilamentos } from '../Pages/Manejos/Filamentos';
+import { ManejoResinas } from '../Pages/Manejos/Resinas';
+import { ManejoPerfiles } from '../Pages/Manejos/Perfiles';
 
 import { Login as LoginPage } from '../Pages/Login';
 import { P404 } from '../Pages/P404';
@@ -15,7 +21,7 @@ import { store } from './store';
 import { Provider } from "react-redux";
 import { useStates } from '../Hooks/useStates';
 
-import { GeneralNotification } from '../Components/Modals/general/GeneralNotification'; 
+import { GeneralNotification } from '../Components/Modals/general/GeneralNotification';
 
 
 function AppUI() {
@@ -28,7 +34,6 @@ function AppUI() {
 
     useEffect(() => {
         f.app.getModes();
-        // f.u1('sidebar', 'open', true);
     }, []);
 
     useEffect(() => {
@@ -54,11 +59,18 @@ function AppUI() {
         <div className={`text-[var(--my-minor)] bg-my-${ls.theme}`}>
             <Routes>
                 <Route path="" element={ <MainPage /> } >
-                    <Route path="" element={ <IndexPage /> } />
-                    <Route path="chat/*" element={ <ChatPage /> } />
-                    <Route path="test/*" element={ <TestPage /> } />
+                    <Route path="" element={ <CatalogoPage /> } />
+                    {/* Catalogos */}
+                    <Route path="catalogos/modelos/*" element={ <CatalogoPage /> } />
+                    <Route path="catalogos/filamentos/*" element={ <CatFilamentos /> } />
+                    <Route path="catalogos/resinas/*" element={ <CatResinas /> } />
+                    {/* Calculadora */}
+                    <Route path="calculadora/*" element={ <CalculadoraPage /> } />
+                    {/* Manejos */}
+                    <Route path="manejos/filamentos/*" element={ <ManejoFilamentos /> } />
+                    <Route path="manejos/resinas/*" element={ <ManejoResinas /> } />
+                    <Route path="manejos/perfiles/*" element={ <ManejoPerfiles /> } />
                     <Route path="*" element={ <P404 /> } />
-                    {/* -----------   /404   ----------- */}
                 </Route>
             </Routes>
 

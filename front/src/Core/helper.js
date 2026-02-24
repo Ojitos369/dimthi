@@ -201,13 +201,17 @@ export const selectNull = props => {
 }
 
 export const pages = [
-    {name: 'Index', menu_name: 'index', elements: [
-        {name: 'Index', page_name: 'index', to: '/', menuBarMode: 'menuBarDefault'},
+    {name: 'Catálogos', menu_name: 'catalogos', elements: [
+        {name: 'Modelos', page_name: 'cat_modelos', to: '/catalogos/modelos'},
+        {name: 'Filamentos', page_name: 'cat_filamentos', to: '/catalogos/filamentos'},
+        {name: 'Resinas', page_name: 'cat_resinas', to: '/catalogos/resinas'},
     ]},
-    {name: 'Chat', menu_name: 'chat', elements: [
-        {name: 'Chat', page_name: 'chat', to: '/chat/chat'},
+    {name: 'Calculadora', menu_name: 'calculadora', elements: [
+        {name: 'Calculadora 3D', page_name: 'calculadora', to: '/calculadora'},
     ]},
-    {name: 'Test', menu_name: 'test', elements: [
-        {name: 'Test', page_name: 'test', to: '/test/test'},
+    {name: 'Manejos', menu_name: 'manejos', elements: [
+        {name: 'Filamentos', page_name: 'mj_filamentos', to: '/manejos/filamentos'},
+        {name: 'Resinas', page_name: 'mj_resinas', to: '/manejos/resinas'},
+        {name: 'Perfiles', page_name: 'mj_perfiles', to: '/manejos/perfiles'},
     ]},
 ]

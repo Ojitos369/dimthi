@@ -1,0 +1,693 @@
+@use '../../../static/css/response.scss' as *;
+
+.calculadoraPage {
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ---- NAV HEADER ---- */
+.navHeader {
+    background: #111;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    .navTitle {
+        font-weight: 700;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .navAccent {
+            color: #7c3aed;
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+    }
+
+    .navControls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+}
+
+/* ---- TOGGLE PILL ---- */
+.togglePill {
+    display: flex;
+    background: #222;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #444;
+}
+
+.toggleBtn {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: transparent;
+    color: #888;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover { color: #ccc; }
+}
+
+.toggleActive {
+    background: #7c3aed;
+    color: #fff;
+    &:hover { color: #fff; }
+}
+
+/* ---- SWITCH ---- */
+.switchLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.switchText {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.switchTrack {
+    width: 40px;
+    height: 22px;
+    background: #444;
+    border-radius: 11px;
+    position: relative;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.switchOn {
+    background: #198754;
+}
+
+.switchThumb {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+    .switchOn & { transform: translateX(18px); }
+}
+
+/* ---- LAYOUT GRID ---- */
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    @include lg { grid-template-columns: 5fr 7fr; }
+}
+
+.controlsPanel, .resultsPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* ---- CARDS ---- */
+.card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    color: #e0e0e0;
+}
+
+.cardTitle {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ---- FORM ELEMENTS ---- */
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.fieldLabel {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #aaa;
+    margin-bottom: 0.25rem;
+}
+
+.fieldLabelUpper {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.inputRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #444;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #222;
+    transition: box-shadow 0.2s;
+    &:focus-within { box-shadow: 0 0 0 2px #7c3aed80; }
+
+    input {
+        width: 100%;
+        padding: 0.5rem;
+        background: transparent;
+        border: none;
+        color: #e0e0e0;
+        outline: none;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .inputSuffix {
+        background: #2a2a2a;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        color: #888;
+        border-left: 1px solid #444;
+        white-space: nowrap;
+    }
+
+    .inputPrefix {
+        background: #2a2a2a;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        color: #888;
+        border-right: 1px solid #444;
+        white-space: nowrap;
+    }
+}
+
+.selectField {
+    width: 100%;
+    padding: 0.5rem;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 0.85rem;
+    outline: none;
+    transition: box-shadow 0.2s;
+    &:focus { box-shadow: 0 0 0 2px #7c3aed80; }
+}
+
+/* ---- PERFILES ---- */
+.profileForm {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    background: #1e1e1e;
+}
+
+.profileFormGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    align-items: end;
+    @include sm { grid-template-columns: 6fr 2fr 4fr; }
+}
+
+.colorInput {
+    width: 100%;
+    height: 38px;
+    padding: 2px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #222;
+}
+
+.btnSave {
+    width: 100%;
+    background: #198754;
+    color: #fff;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+    &:hover { background: #157347; }
+}
+
+.btnDanger {
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    &:hover { background: #6d28d9; }
+}
+
+.profilesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
+    &::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+}
+
+.profileCard {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #1e1e1e;
+    &:hover {
+        border-color: #7c3aed;
+        background: #252525;
+        .btnDanger { opacity: 1; }
+    }
+    &.active {
+        border-color: #7c3aed;
+        background: #1e1530;
+        box-shadow: 0 0 0 1px #7c3aed;
+    }
+}
+
+.profileRadio {
+    margin-right: 0.75rem;
+    accent-color: #7c3aed;
+}
+
+.profileInfo { flex: 1; min-width: 0; }
+
+.profileName {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .colorDot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1px solid #555;
+        flex-shrink: 0;
+    }
+}
+
+.profileDetail {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 2px;
+    padding-left: 1.25rem;
+}
+
+.profileDeleteBtn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+}
+
+/* ---- COST ROW ---- */
+.costRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #222;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+
+    .costLabel { font-size: 0.85rem; color: #ccc; }
+    .costInput {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        .currencySign { color: #888; }
+        input {
+            width: 80px;
+            padding: 0.25rem 0.5rem;
+            text-align: right;
+            font-size: 0.85rem;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+            outline: none;
+            &:focus { border-color: #7c3aed; }
+        }
+    }
+}
+
+/* ---- MARGIN ---- */
+.marginInput {
+    padding-top: 1rem;
+    border-top: 1px solid #2a2a2a;
+    .marginLabel {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #198754;
+        margin-bottom: 0.25rem;
+    }
+    input {
+        width: 100%;
+        padding: 0.5rem;
+        background: rgba(25, 135, 84, 0.1);
+        border: 1px solid rgba(25, 135, 84, 0.3);
+        border-radius: 6px;
+        color: #198754;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-align: center;
+        outline: none;
+        &:focus { box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.3); }
+    }
+}
+
+/* ---- RESULTS ---- */
+.resultCard {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.resultHeader {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    &.fdm {
+        background: rgba(124, 58, 237, 0.1);
+        border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+        color: #7c3aed;
+    }
+    &.sla {
+        background: rgba(25, 135, 84, 0.1);
+        border-bottom: 1px solid rgba(25, 135, 84, 0.2);
+        color: #198754;
+    }
+}
+
+.resultBorderFdm { border-top: 3px solid #7c3aed; }
+.resultBorderSla { border-top: 3px solid #198754; }
+
+.resultBody {
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.resultLabel {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 0.25rem;
+}
+
+.resultPrice {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #f0f0f0;
+    margin-bottom: 0.5rem;
+}
+
+.resultProfit {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #198754;
+    background: rgba(25, 135, 84, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+}
+
+.resultBreakdown {
+    border-top: 1px solid #333;
+    padding-top: 0.75rem;
+    .breakdownRow {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        .breakdownLabel { color: #888; }
+        .breakdownValue { font-weight: 600; color: #ccc; }
+    }
+}
+
+/* ---- CHART ---- */
+.chartCard {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    .chartTitle {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #e0e0e0;
+        margin-bottom: 1rem;
+    }
+    .chartContainer {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        @include md { height: 350px; }
+    }
+}
+
+/* ---- EMPTY STATE ---- */
+.emptyState {
+    text-align: center;
+    color: #666;
+    font-size: 0.85rem;
+    padding: 1rem;
+    grid-column: 1 / -1;
+}
+
+/* ---- PROFILE SELECTOR ---- */
+.profileInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.profileTag {
+    font-size: 0.75rem;
+    background: #222;
+    color: #aaa;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+.profileActions {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #333;
+}
+
+.dirtyBadge {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.profileBtnRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btnEditProfile {
+    background: #7c3aed;
+    color: #fff;
+    font-weight: 500;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.2s;
+    &:hover { background: #6d28d9; }
+}
+
+.saveNewRow {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.saveNewInput {
+    flex: 1;
+    padding: 0.4rem 0.75rem;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 0.8rem;
+    outline: none;
+    &:focus { box-shadow: 0 0 0 2px #7c3aed80; }
+}
+
+.btnSaveNew {
+    background: #198754;
+    color: #fff;
+    font-weight: 500;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    transition: background 0.2s;
+    &:hover { background: #157347; }
+}
+
+/* ---- MODEL LINK ---- */
+.btnLink {
+    background: none;
+    border: 1px dashed #555;
+    color: #888;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    width: 100%;
+    transition: all 0.2s;
+    &:hover { border-color: #7c3aed; color: #7c3aed; }
+}
+
+.newModeloRow {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    align-items: center;
+}
+
+.btnCancelSmall {
+    background: #444;
+    color: #ccc;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    &:hover { background: #555; }
+}
+
+/* ---- PROFILE DOT ---- */
+.profileSelectorRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profileDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #7c3aed;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(124, 58, 237, 0.5);
+}
+
+/* ---- SELECTOR WITH ADD ---- */
+.selectorWithAdd {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btnAddInline {
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: background 0.2s;
+    &:hover { background: #6d28d9; }
+}
+
+.inlineCreateRow {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    align-items: center;
+}
+
+/* ---- SAVE COTIZACION ---- */
+.btnSaveCotizacion {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.6rem 1.25rem;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover {
+        background: linear-gradient(135deg, #6d28d9, #5b21b6);
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+}

@@ -20,6 +20,11 @@ from core.conf.settings import MYE, ce, prod_mode, dev_mode
 sec_code = "0e5a332d-9e2e-427d-bd84-4e581fe8a806"
 
 
+class NoSession:
+    def validate_session(self):
+        pass
+
+
 class BaseApi(ClassBase):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.get('request', None)
@@ -36,6 +41,7 @@ class BaseApi(ClassBase):
         self.MYE = MYE
         self.response_mode = 'json'
         self.extra_error = ""
+        self.create_conexion()
 
     def errors(self, e):
         try:
@@ -112,7 +118,7 @@ class BaseApi(ClassBase):
         except Exception as e:
             self.errors(e)
         finally:
-            pass
+            self.close_conexion()
 
 
 class PostApi(BaseApi):
