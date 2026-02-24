@@ -12,15 +12,17 @@ export const Calculadora = () => {
     localEffects();
 
     const {
-        style, results, perfiles, filamentos, resinas, modelos,
+        themeColors, style, results, perfiles, filamentos, resinas, modelos, maquinas,
         timeHours, timeMinutes, energyTariff, fdmWeightG, resinVolMl, laborMinutes,
         filamentCost, resinCost, ipaCost, marginPercent,
         activeProfileId, profileDirty, newProfileName,
         materialType, showDetail,
         selectedFilamentoId, selectedResinaId,
         selectedModeloId, newModeloName, showNewModelo,
-        showNewFilamento, setShowNewFilamento, newFilNombre, setNewFilNombre, newFilPrecio, setNewFilPrecio,
-        showNewResina, setShowNewResina, newResNombre, setNewResNombre, newResPrecio, setNewResPrecio,
+        selectedMaquinaId, setSelectedMaquinaId, selectedMaquina, maquinaName,
+        showNewFilamento, setShowNewFilamento, newFilNombre, setNewFilNombre, newFilColor, setNewFilColor, newFilPrecio, setNewFilPrecio,
+        showNewResina, setShowNewResina, newResNombre, setNewResNombre, newResColor, setNewResColor, newResPrecio, setNewResPrecio,
+        showNewMaquina, setShowNewMaquina, newMaqNombre, setNewMaqNombre,
         setTimeHours, setTimeMinutes, setEnergyTariff,
         setFdmWeightG, setResinVolMl, setLaborMinutes,
         setFilamentCost, setResinCost, setIpaCost,
@@ -29,7 +31,7 @@ export const Calculadora = () => {
         toggleMaterialType, toggleDetail, markDirty,
         handleSelectFilamento, handleSelectResina,
         selectProfile, handleSaveAsNew, handleEditCurrent, handleDeletePerfil,
-        handleCreateModelo, handleCreateFilamento, handleCreateResina,
+        handleCreateModelo, handleCreateFilamento, handleCreateResina, handleCreateMaquina,
         handleSaveCotizacion,
     } = ls;
 
@@ -115,7 +117,7 @@ export const Calculadora = () => {
                         )}
                     </div>
 
-                    {/* BÁSICO: Tiempo + Peso + Material Selector */}
+                    {/* BÁSICO: Tiempo + Peso */}
                     <div className={style.card}>
                         <div className={style.cardTitle}>{isFilamento ? '🔩 Filamento (FDM)' : '🧪 Resina (SLA)'}</div>
                         <div className={style.fieldGroup}>
@@ -132,51 +134,6 @@ export const Calculadora = () => {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Material selector + add new */}
-                            {isFilamento ? (
-                                <div>
-                                    <div className={style.fieldLabel}>Filamento</div>
-                                    <div className={style.selectorWithAdd}>
-                                        <select className={style.selectField} value={selectedFilamentoId} onChange={e => handleSelectFilamento(e.target.value)}>
-                                            <option value="">— Manual —</option>
-                                            {filamentos.map(f => <option key={f.id} value={f.id}>{f.nombre} - ${parseFloat(f.precio_kg||0).toFixed(0)}/kg</option>)}
-                                        </select>
-                                        <button className={style.btnAddInline} onClick={() => setShowNewFilamento(!showNewFilamento)}>＋</button>
-                                    </div>
-                                    {showNewFilamento && (
-                                        <div className={style.inlineCreateRow}>
-                                            <input type="text" placeholder="Nombre..." value={newFilNombre} onChange={e => setNewFilNombre(e.target.value)} className={style.saveNewInput} />
-                                            <div className={style.inputWrapper} style={{maxWidth: '100px'}}>
-                                                <span className={style.inputPrefix}>$</span>
-                                                <input type="number" value={newFilPrecio} onChange={e => setNewFilPrecio(parseFloat(e.target.value)||0)} />
-                                            </div>
-                                            <button className={style.btnSaveNew} onClick={handleCreateFilamento}>Crear</button>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div>
-                                    <div className={style.fieldLabel}>Resina</div>
-                                    <div className={style.selectorWithAdd}>
-                                        <select className={style.selectField} value={selectedResinaId} onChange={e => handleSelectResina(e.target.value)}>
-                                            <option value="">— Manual —</option>
-                                            {resinas.map(r => <option key={r.id} value={r.id}>{r.nombre} - ${parseFloat(r.precio_kg||0).toFixed(0)}/kg</option>)}
-                                        </select>
-                                        <button className={style.btnAddInline} onClick={() => setShowNewResina(!showNewResina)}>＋</button>
-                                    </div>
-                                    {showNewResina && (
-                                        <div className={style.inlineCreateRow}>
-                                            <input type="text" placeholder="Nombre..." value={newResNombre} onChange={e => setNewResNombre(e.target.value)} className={style.saveNewInput} />
-                                            <div className={style.inputWrapper} style={{maxWidth: '100px'}}>
-                                                <span className={style.inputPrefix}>$</span>
-                                                <input type="number" value={newResPrecio} onChange={e => setNewResPrecio(parseFloat(e.target.value)||0)} />
-                                            </div>
-                                            <button className={style.btnSaveNew} onClick={handleCreateResina}>Crear</button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
 
                             {/* Peso/Volumen */}
                             {isFilamento ? (
@@ -199,6 +156,71 @@ export const Calculadora = () => {
                             <div className={style.card}>
                                 <div className={style.cardTitle}>⚡ Costos Detallados</div>
                                 <div className={style.fieldGroup}>
+                                    {/* Impresora selector */}
+                                    <div>
+                                        <div className={style.fieldLabel}>Impresora</div>
+                                        <div className={style.selectorWithAdd}>
+                                            <select className={style.selectField} value={selectedMaquinaId} onChange={e => { setSelectedMaquinaId(e.target.value); markDirty(); }}>
+                                                <option value="">— Impresora por defecto —</option>
+                                                {maquinas.filter(m => m.tipo === (materialType === 'filamento' ? 'fdm' : 'sla')).map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                                            </select>
+                                            <button className={style.btnAddInline} onClick={() => setShowNewMaquina(!showNewMaquina)}>＋</button>
+                                        </div>
+                                        {showNewMaquina && (
+                                            <div className={style.inlineCreateRow}>
+                                                <input type="text" placeholder="Nombre de impresora nueva..." value={newMaqNombre} onChange={e => setNewMaqNombre(e.target.value)} className={style.saveNewInput} style={{flex: 1}} />
+                                                <button className={style.btnSaveNew} onClick={handleCreateMaquina}>Crear</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {/* Material selector + add new */}
+                                    {isFilamento ? (
+                                        <div>
+                                            <div className={style.fieldLabel}>Filamento</div>
+                                            <div className={style.selectorWithAdd}>
+                                                <select className={style.selectField} value={selectedFilamentoId} onChange={e => handleSelectFilamento(e.target.value)}>
+                                                    <option value="">— Manual —</option>
+                                                    {filamentos.map(f => <option key={f.id} value={f.id}>{f.nombre} - ${parseFloat(f.precio_kg||0).toFixed(0)}/kg</option>)}
+                                                </select>
+                                                <button className={style.btnAddInline} onClick={() => setShowNewFilamento(!showNewFilamento)}>＋</button>
+                                            </div>
+                                            {showNewFilamento && (
+                                                <div className={style.inlineCreateRow}>
+                                                    <input type="text" placeholder="Nombre..." value={newFilNombre} onChange={e => setNewFilNombre(e.target.value)} className={style.saveNewInput} />
+                                                    <input type="color" value={newFilColor} onChange={e => setNewFilColor(e.target.value)} style={{width: '32px', height: '32px', padding: '0', border: 'none', borderRadius: '4px', cursor: 'pointer', flexShrink: 0}} />
+                                                    <div className={style.inputWrapper} style={{maxWidth: '100px'}}>
+                                                        <span className={style.inputPrefix}>$</span>
+                                                        <input type="number" value={newFilPrecio} onChange={e => setNewFilPrecio(parseFloat(e.target.value)||0)} />
+                                                    </div>
+                                                    <button className={style.btnSaveNew} onClick={handleCreateFilamento}>Crear</button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <div className={style.fieldLabel}>Resina</div>
+                                            <div className={style.selectorWithAdd}>
+                                                <select className={style.selectField} value={selectedResinaId} onChange={e => handleSelectResina(e.target.value)}>
+                                                    <option value="">— Manual —</option>
+                                                    {resinas.map(r => <option key={r.id} value={r.id}>{r.nombre} - ${parseFloat(r.precio_kg||0).toFixed(0)}/kg</option>)}
+                                                </select>
+                                                <button className={style.btnAddInline} onClick={() => setShowNewResina(!showNewResina)}>＋</button>
+                                            </div>
+                                            {showNewResina && (
+                                                <div className={style.inlineCreateRow}>
+                                                    <input type="text" placeholder="Nombre..." value={newResNombre} onChange={e => setNewResNombre(e.target.value)} className={style.saveNewInput} />
+                                                    <input type="color" value={newResColor} onChange={e => setNewResColor(e.target.value)} style={{width: '32px', height: '32px', padding: '0', border: 'none', borderRadius: '4px', cursor: 'pointer', flexShrink: 0}} />
+                                                    <div className={style.inputWrapper} style={{maxWidth: '100px'}}>
+                                                        <span className={style.inputPrefix}>$</span>
+                                                        <input type="number" value={newResPrecio} onChange={e => setNewResPrecio(parseFloat(e.target.value)||0)} />
+                                                    </div>
+                                                    <button className={style.btnSaveNew} onClick={handleCreateResina}>Crear</button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     {/* Precio manual material */}
                                     {isFilamento ? (
                                         <div className={style.costRow}>
@@ -229,9 +251,9 @@ export const Calculadora = () => {
                                     <div>
                                         <div className={style.fieldLabel}>Rango de Consumo (CFE)</div>
                                         <select className={style.selectField} value={energyTariff} onChange={e => { setEnergyTariff(parseFloat(e.target.value)); markDirty(); }}>
-                                            <option value="1.20">Residencial Básico (~$1.20/kWh)</option>
-                                            <option value="3.85">Tarifa DAC / Alto (~$3.85/kWh)</option>
-                                            <option value="4.50">Comercial PDBT (~$4.50/kWh)</option>
+                                            <option value={1.2}>Residencial Básico (~$1.20/kWh)</option>
+                                            <option value={3.85}>Tarifa DAC / Alto (~$3.85/kWh)</option>
+                                            <option value={4.5}>Comercial PDBT (~$4.50/kWh)</option>
                                         </select>
                                     </div>
                                     <div>
@@ -270,12 +292,12 @@ export const Calculadora = () => {
                 <div className={style.resultsPanel}>
                     <div className={`${style.resultCard} ${isFilamento ? style.resultBorderFdm : style.resultBorderSla}`}>
                         <div className={`${style.resultHeader} ${isFilamento ? style.fdm : style.sla}`}>
-                            {isFilamento ? 'FDM: Ender 3 V3 KE' : 'SLA: Photon 4K'}
+                            {isFilamento ? `FDM: ${maquinaName || 'Ender 3 V3 KE'}` : `SLA: ${maquinaName || 'Photon Mono 4K'}`}
                         </div>
                         <div className={style.resultBody}>
                             <div className={style.resultLabel}>Precio de Venta Sugerido</div>
                             <div className={style.resultPrice}>${fmt(current.price)}</div>
-                            <div className={style.resultProfit}>Utilidad: ${fmt(current.profit)}</div>
+                            {showDetail && <div className={style.resultProfit}>Utilidad: ${fmt(current.profit)}</div>}
                             {showDetail && (
                                 <div className={style.resultBreakdown}>
                                     <div className={style.breakdownRow}><span className={style.breakdownLabel}>{isFilamento?'Material:':'Resina+IPA:'}</span><span className={style.breakdownValue}>${fmt(current.mat)}</span></div>

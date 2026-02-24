@@ -14,6 +14,7 @@ dev_mode = True if str(os.environ.get('RUN_DEV_MODE', False)).title() == 'True' 
 # ----------------------   CORS   ----------------------
 origins = [
     "http://localhost:5173",
+    "http://localhost:5174",
 ]
 allow_origin_regex = r"https?://.*(localhost)+.*(:[0-9]+)?"
 allow_origins = origins

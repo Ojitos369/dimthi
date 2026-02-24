@@ -205,6 +205,7 @@ export const pages = [
         {name: 'Modelos', page_name: 'cat_modelos', to: '/catalogos/modelos'},
         {name: 'Filamentos', page_name: 'cat_filamentos', to: '/catalogos/filamentos'},
         {name: 'Resinas', page_name: 'cat_resinas', to: '/catalogos/resinas'},
+        {name: 'Impresoras', page_name: 'cat_maquinas', to: '/catalogos/impresoras'},
     ]},
     {name: 'Calculadora', menu_name: 'calculadora', elements: [
         {name: 'Calculadora 3D', page_name: 'calculadora', to: '/calculadora'},
@@ -213,5 +214,6 @@ export const pages = [
         {name: 'Filamentos', page_name: 'mj_filamentos', to: '/manejos/filamentos'},
         {name: 'Resinas', page_name: 'mj_resinas', to: '/manejos/resinas'},
         {name: 'Perfiles', page_name: 'mj_perfiles', to: '/manejos/perfiles'},
+        {name: 'Impresoras', page_name: 'mj_maquinas', to: '/manejos/impresoras'},
     ]},
 ]

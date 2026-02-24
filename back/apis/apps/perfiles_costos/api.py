@@ -14,10 +14,13 @@ class GetPerfiles(NoSession, BaseApi):
             r.nombre as resina_nombre,
             r.color as resina_color,
             r.marca as resina_marca,
-            r.precio_kg as resina_precio_kg
+            r.precio_kg as resina_precio_kg,
+            m.nombre as maquina_nombre,
+            m.tipo as maquina_tipo
         FROM perfiles_costos pc
         LEFT JOIN filamentos f ON pc.filamento_id = f.id
         LEFT JOIN resinas r ON pc.resina_id = r.id
+        LEFT JOIN maquinas m ON pc.maquina_id = m.id
         WHERE 1=1
         {0}
         ORDER BY pc.created_at DESC
@@ -55,6 +58,7 @@ class SavePerfil(NoSession, BaseApi):
             "nombre": self.data["nombre"],
             "filamento_id": self.data.get("filamento_id", None),
             "resina_id": self.data.get("resina_id", None),
+            "maquina_id": self.data.get("maquina_id", None),
             "luz_kw": self.data.get("luz_kw", 0),
             "desgaste_impresora": self.data.get("desgaste_impresora", 0),
             "mano_obra": self.data.get("mano_obra", 0),
@@ -65,9 +69,9 @@ class SavePerfil(NoSession, BaseApi):
         if not self.existe:
             query = """
             INSERT INTO perfiles_costos
-            (id, nombre, filamento_id, resina_id, luz_kw, desgaste_impresora, mano_obra, gastos_generales, margen_utilidad)
+            (id, nombre, filamento_id, resina_id, maquina_id, luz_kw, desgaste_impresora, mano_obra, gastos_generales, margen_utilidad)
             VALUES
-            (:id, :nombre, :filamento_id, :resina_id, :luz_kw, :desgaste_impresora, :mano_obra, :gastos_generales, :margen_utilidad)
+            (:id, :nombre, :filamento_id, :resina_id, :maquina_id, :luz_kw, :desgaste_impresora, :mano_obra, :gastos_generales, :margen_utilidad)
             """
         else:
             query = """
@@ -75,6 +79,7 @@ class SavePerfil(NoSession, BaseApi):
             SET nombre = :nombre,
                 filamento_id = :filamento_id,
                 resina_id = :resina_id,
+                maquina_id = :maquina_id,
                 luz_kw = :luz_kw,
                 desgaste_impresora = :desgaste_impresora,
                 mano_obra = :mano_obra,

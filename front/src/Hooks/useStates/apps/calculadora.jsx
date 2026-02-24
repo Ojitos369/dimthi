@@ -145,11 +145,40 @@ export const calculadora = props => {
         .catch(err => { console.log(err); });
     }
 
+    // ---- MAQUINAS ----
+    const getMaquinas = () => {
+        miAxios.get('apps/maquinas/get_maquinas/')
+        .then(res => {
+            u1("calculadora", "maquinas", res.data.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
+    const saveMaquina = (data, callback) => {
+        miAxios.post('apps/maquinas/save_maquina', data)
+        .then(res => {
+            getMaquinas();
+            if (callback) callback(res.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
+    const deleteMaquina = (id, callback) => {
+        miAxios.delete('apps/maquinas/delete_maquina', { params: { id } })
+        .then(res => {
+            getMaquinas();
+            if (callback) callback(res.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
     return {
         getFilamentos, saveFilamento, deleteFilamento,
         getResinas, saveResina, deleteResina,
         getPerfiles, savePerfil, deletePerfil,
         getCotizaciones, saveCotizacion, deleteCotizacion,
         getModelos, getModelo, saveModelo, deleteModelo,
+        getMaquinas, saveMaquina, deleteMaquina,
     }
 }
+

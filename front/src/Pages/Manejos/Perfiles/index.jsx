@@ -2,9 +2,10 @@ import { localStates, localEffects } from './localStates';
 
 export const ManejoPerfiles = () => {
     const {
-        style, perfiles, filamentos, resinas,
+        style, perfiles, filamentos, resinas, maquinas,
         showForm, editId, nombre, setNombre,
         filamentoId, setFilamentoId, resinaId, setResinaId,
+        maquinaId, setMaquinaId,
         luzKw, setLuzKw, manoObra, setManoObra, margenUtilidad, setMargenUtilidad,
         openNew, openEdit, cancel, handleSave, handleDelete,
     } = localStates();
@@ -21,7 +22,16 @@ export const ManejoPerfiles = () => {
                 <div className={style.formCard}>
                     <div className={style.formTitle}>{editId ? 'Editar Perfil' : 'Nuevo Perfil'}</div>
                     <div className={style.formGroup}>
-                        <div><div className={style.formLabel}>Nombre del Perfil</div><input className={style.formInput} value={nombre} onChange={e => setNombre(e.target.value)} placeholder="PLA Esun Rojo – Alto Margen..." /></div>
+                        <div className={style.formRow}>
+                            <div><div className={style.formLabel}>Nombre del Perfil</div><input className={style.formInput} value={nombre} onChange={e => setNombre(e.target.value)} placeholder="PLA Esun Rojo – Alto Margen..." /></div>
+                            <div>
+                                <div className={style.formLabel}>Impresora vinculada</div>
+                                <select className={style.formSelect} value={maquinaId} onChange={e => setMaquinaId(e.target.value)}>
+                                    <option value="">— Sin impresora —</option>
+                                    {maquinas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                                </select>
+                            </div>
+                        </div>
                         <div className={style.formRow}>
                             <div>
                                 <div className={style.formLabel}>Filamento vinculado</div>
@@ -52,13 +62,14 @@ export const ManejoPerfiles = () => {
             )}
 
             <div className={style.dataTable}>
-                <div className={style.tableHeader} style={{gridTemplateColumns: '3fr 2fr 2fr 2fr 2fr 2fr 1fr'}}>
-                    <span>Nombre</span><span>Filamento</span><span>Resina</span><span>Luz</span><span>M.O.</span><span>Margen</span><span></span>
+                <div className={style.tableHeader} style={{gridTemplateColumns: '3fr 2fr 2fr 2fr 1fr 1fr 1fr 1fr'}}>
+                    <span>Nombre</span><span>Impresora</span><span>Filamento</span><span>Resina</span><span>Luz</span><span>M.O.</span><span>Margen</span><span></span>
                 </div>
                 {perfiles.length === 0 && <div className={style.emptyState}>No hay perfiles.</div>}
                 {perfiles.map(p => (
-                    <div key={p.id} className={style.tableRow} style={{gridTemplateColumns: '3fr 2fr 2fr 2fr 2fr 2fr 1fr'}}>
+                    <div key={p.id} className={style.tableRow} style={{gridTemplateColumns: '3fr 2fr 2fr 2fr 1fr 1fr 1fr 1fr'}}>
                         <span className={style.truncate}>{p.nombre}</span>
+                        <span className={style.truncate}>{p.maquina_nombre || '—'}</span>
                         <span className={style.truncate}>{p.filamento_nombre || '—'}</span>
                         <span className={style.truncate}>{p.resina_nombre || '—'}</span>
                         <span>${parseFloat(p.luz_kw||0).toFixed(2)}</span>

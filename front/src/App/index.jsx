@@ -9,10 +9,12 @@ import { Calculadora as CalculadoraPage } from '../Pages/Calculadora';
 import { Catalogo as CatalogoPage } from '../Pages/Catalogo';
 import { CatFilamentos } from '../Pages/Catalogos/Filamentos';
 import { CatResinas } from '../Pages/Catalogos/Resinas';
+import { CatMaquinas } from '../Pages/Catalogos/Maquinas';
 import { Modelos as ModelosPage } from '../Pages/Modelos';
 import { ManejoFilamentos } from '../Pages/Manejos/Filamentos';
 import { ManejoResinas } from '../Pages/Manejos/Resinas';
 import { ManejoPerfiles } from '../Pages/Manejos/Perfiles';
+import { ManejoMaquinas } from '../Pages/Manejos/Maquinas';
 
 import { Login as LoginPage } from '../Pages/Login';
 import { P404 } from '../Pages/P404';
@@ -64,12 +66,14 @@ function AppUI() {
                     <Route path="catalogos/modelos/*" element={ <CatalogoPage /> } />
                     <Route path="catalogos/filamentos/*" element={ <CatFilamentos /> } />
                     <Route path="catalogos/resinas/*" element={ <CatResinas /> } />
+                    <Route path="catalogos/impresoras/*" element={ <CatMaquinas /> } />
                     {/* Calculadora */}
                     <Route path="calculadora/*" element={ <CalculadoraPage /> } />
                     {/* Manejos */}
                     <Route path="manejos/filamentos/*" element={ <ManejoFilamentos /> } />
                     <Route path="manejos/resinas/*" element={ <ManejoResinas /> } />
                     <Route path="manejos/perfiles/*" element={ <ManejoPerfiles /> } />
+                    <Route path="manejos/impresoras/*" element={ <ManejoMaquinas /> } />
                     <Route path="*" element={ <P404 /> } />
                 </Route>
             </Routes>

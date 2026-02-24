@@ -20,6 +20,22 @@ export DB_PORT="5438"
 */
 
 
+CREATE TABLE maquinas (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre varchar(100) NOT NULL,
+    tipo varchar(10) NOT NULL DEFAULT 'fdm',  -- 'fdm' o 'sla'
+    marca varchar(50),
+    power_kw decimal(10,4) DEFAULT 0,
+    dep_hr decimal(10,4) DEFAULT 0,
+    cons_hr decimal(10,4) DEFAULT 0,
+    lcd_hr decimal(10,4) DEFAULT 0,
+    fep_hr decimal(10,4) DEFAULT 0,
+    ipa_per_print decimal(10,4) DEFAULT 0,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
 CREATE TABLE filamentos (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     nombre varchar(50),
@@ -45,6 +61,7 @@ CREATE TABLE perfiles_costos (
     nombre varchar(50) NOT NULL,
     filamento_id uuid REFERENCES filamentos(id),
     resina_id uuid REFERENCES resinas(id),
+    maquina_id uuid REFERENCES maquinas(id),
     luz_kw decimal(10,2),
     desgaste_impresora decimal(10,2),
     mano_obra decimal(10,2),
