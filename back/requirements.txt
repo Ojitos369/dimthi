@@ -16,7 +16,6 @@ mdurl==0.1.2
 numpy==2.4.2
 ojitos369==1.1
 ojitos369_postgres_db==2.1.4
-packaging @ file:///home/task_176104878999627/conda-bld/packaging_1761049078606/work
 pandas==3.0.1
 passlib==1.7.4
 psycopg2-binary==2.9.11
