@@ -2,6 +2,7 @@ export const FormCard = ({ ls }) => {
     const {
         style, perfiles, filamentos, resinas, maquinas,
         editId, nombre, setNombre,
+        tipoMaterial, setTipoMaterial,
         filamentoId, setFilamentoId, resinaId, setResinaId,
         maquinaId, setMaquinaId,
         luzKw, setLuzKw, manoObra, setManoObra, margenUtilidad, setMargenUtilidad,
@@ -13,30 +14,40 @@ export const FormCard = ({ ls }) => {
             <div className={style.formTitle}>{editId ? 'Editar Perfil' : 'Nuevo Perfil'}</div>
             <div className={style.formGroup}>
                 <div className={style.formRow}>
-                    <div><div className={style.formLabel}>Nombre del Perfil</div><input className={style.formInput} value={nombre} onChange={e => setNombre(e.target.value)} placeholder="PLA Esun Rojo – Alto Margen..." /></div>
+                    <div style={{flex: 2}}><div className={style.formLabel}>Nombre del Perfil</div><input className={style.formInput} value={nombre} onChange={e => setNombre(e.target.value)} placeholder="PLA Esun Rojo – Alto Margen..." /></div>
                     <div>
-                        <div className={style.formLabel}>Impresora vinculada</div>
-                        <select className={style.formSelect} value={maquinaId} onChange={e => setMaquinaId(e.target.value)}>
-                            <option value="">— Sin impresora —</option>
-                            {maquinas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                        <div className={style.formLabel}>Tipo de Material</div>
+                        <select className={style.formSelect} value={tipoMaterial} onChange={e => setTipoMaterial(e.target.value)}>
+                            <option value="filamento">Filamento (FDM)</option>
+                            <option value="resina">Resina (SLA)</option>
                         </select>
                     </div>
                 </div>
                 <div className={style.formRow}>
                     <div>
-                        <div className={style.formLabel}>Filamento vinculado</div>
-                        <select className={style.formSelect} value={filamentoId} onChange={e => setFilamentoId(e.target.value)}>
-                            <option value="">— Sin filamento —</option>
-                            {filamentos.map(f => <option key={f.id} value={f.id}>{f.nombre} ({f.marca || 'S/M'})</option>)}
+                        <div className={style.formLabel}>Impresora vinculada</div>
+                        <select className={style.formSelect} value={maquinaId} onChange={e => setMaquinaId(e.target.value)}>
+                            <option value="">— Sin impresora —</option>
+                            {maquinas.filter(m => tipoMaterial === 'filamento' ? m.tipo === 'fdm' : m.tipo === 'sla').map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                         </select>
                     </div>
-                    <div>
-                        <div className={style.formLabel}>Resina vinculada</div>
-                        <select className={style.formSelect} value={resinaId} onChange={e => setResinaId(e.target.value)}>
-                            <option value="">— Sin resina —</option>
-                            {resinas.map(r => <option key={r.id} value={r.id}>{r.nombre} ({r.marca || 'S/M'})</option>)}
-                        </select>
-                    </div>
+                    {tipoMaterial === 'filamento' ? (
+                        <div>
+                            <div className={style.formLabel}>Filamento vinculado</div>
+                            <select className={style.formSelect} value={filamentoId} onChange={e => {setFilamentoId(e.target.value); setResinaId('');}}>
+                                <option value="">— Sin filamento —</option>
+                                {filamentos.map(f => <option key={f.id} value={f.id}>{f.nombre} ({f.marca || 'S/M'})</option>)}
+                            </select>
+                        </div>
+                    ) : (
+                        <div>
+                            <div className={style.formLabel}>Resina vinculada</div>
+                            <select className={style.formSelect} value={resinaId} onChange={e => {setResinaId(e.target.value); setFilamentoId('');}}>
+                                <option value="">— Sin resina —</option>
+                                {resinas.map(r => <option key={r.id} value={r.id}>{r.nombre} ({r.marca || 'S/M'})</option>)}
+                            </select>
+                        </div>
+                    )}
                 </div>
                 <div className={style.formRow}>
                     <div><div className={style.formLabel}>Tarifa Eléctrica ($/kWh)</div><input type="number" className={style.formInput} value={luzKw} onChange={e => setLuzKw(parseFloat(e.target.value)||0)} /></div>
