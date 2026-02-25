@@ -293,12 +293,14 @@ export const localStates = () => {
         document.documentElement.style.setProperty('--theme-text', themeColors.text);
     }, [themeColors]);
 
+    const isFilamento = materialType === 'filamento';
+
     return {
         themeColors, style, results, perfiles, filamentos, resinas, modelos, maquinas,
         timeHours, timeMinutes, energyTariff, fdmWeightG, resinVolMl, laborMinutes,
         filamentCost, resinCost, ipaCost, marginPercent,
         activeProfileId, profileDirty, newProfileName,
-        materialType, showDetail,
+        materialType, showDetail, isFilamento,
         selectedFilamentoId, selectedResinaId,
         selectedModeloId, newModeloName, showNewModelo,
         selectedMaquinaId, setSelectedMaquinaId, selectedMaquina, maquinaName,
