@@ -8,6 +8,7 @@ export const localStates = () => {
 
     const actualPage = useMemo(() => s.page?.actual || '', [s.page?.actual]);
     const { prod_mode, dev_mode } = useMemo(() => s.app?.modes ?? {}, [s.app?.modes]);
+    const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
     const userMenu = useMemo(() => s.modals?.user?.menu, [s.modals?.user?.menu]);
     const username = useMemo(() => s.usuario?.data?.usuario, [s.usuario?.data?.usuario]);
     const isInMd = useMemo(() => s.app?.general?.isInMd, [s.app?.general?.isInMd]);
@@ -34,10 +35,14 @@ export const localStates = () => {
         console.log("close session");
     }
 
+    const login = () => {
+        window.location.href = '#/login';
+    }
+
     return {
         style, showIconMenu,
-        closeSession, changeTheme,
-        prod_mode, dev_mode,
+        closeSession, changeTheme, login,
+        prod_mode, dev_mode, logged,
         actualPage,
         userMenu, openUserMenu,
         username, menubarOpen, setMenubarOpen,

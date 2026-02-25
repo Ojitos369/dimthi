@@ -4,9 +4,9 @@ import { useMemo } from 'react';
 export const ProfileCard = () => {
     const {
         style, perfiles, activeProfileId, selectProfile, setActiveProfileId,
-        profileDirty, handleEditCurrent, newProfileName, setNewProfileName, handleSaveAsNew
+        profileDirty, handleEditCurrent, newProfileName, setNewProfileName, handleSaveAsNew, logged
     } = localStates();
-
+    
     const activePerfil = useMemo(() => perfiles.find(p => p.id === activeProfileId), [perfiles, activeProfileId]);
 
     return (
@@ -27,7 +27,7 @@ export const ProfileCard = () => {
                 {activePerfil && <div className={style.profileDot} />}
             </div>
 
-            {activeProfileId && profileDirty && (
+            {logged && activeProfileId && profileDirty && (
                 <div className={style.profileActions}>
                     <span className={style.dirtyBadge}>⚠ Valores modificados</span>
                     <div className={style.profileBtnRow}>
@@ -40,7 +40,7 @@ export const ProfileCard = () => {
                     </div>
                 </div>
             )}
-            {!activeProfileId && (
+            {logged && !activeProfileId && (
                 <div className={style.saveNewRow} style={{marginTop: '0.5rem'}}>
                     <input type="text" placeholder="Nombre del perfil..." value={newProfileName}
                         onChange={e => setNewProfileName(e.target.value)} className={style.saveNewInput} />

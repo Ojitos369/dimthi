@@ -202,18 +202,27 @@ export const selectNull = props => {
 
 export const pages = [
     {name: 'Catálogos', menu_name: 'catalogos', elements: [
-        {name: 'Modelos', page_name: 'cat_modelos', to: '/catalogos/modelos'},
-        {name: 'Filamentos', page_name: 'cat_filamentos', to: '/catalogos/filamentos'},
-        {name: 'Resinas', page_name: 'cat_resinas', to: '/catalogos/resinas'},
-        {name: 'Impresoras', page_name: 'cat_maquinas', to: '/catalogos/impresoras'},
+        {name: 'Modelos', page_name: 'cat_modelos', to: '/catalogos/modelos', reqLogin: false},
+        {name: 'Filamentos', page_name: 'cat_filamentos', to: '/catalogos/filamentos', reqLogin: true},
+        {name: 'Resinas', page_name: 'cat_resinas', to: '/catalogos/resinas', reqLogin: true},
+        {name: 'Impresoras', page_name: 'cat_maquinas', to: '/catalogos/impresoras', reqLogin: true},
     ]},
     {name: 'Calculadora', menu_name: 'calculadora', elements: [
-        {name: 'Calculadora 3D', page_name: 'calculadora', to: '/calculadora'},
+        {name: 'Calculadora 3D', page_name: 'calculadora', to: '/calculadora', reqLogin: false},
+        // {name: 'Calculadora Detallada', page_name: 'calculadora_detallada', to: '/calculadora?mode=detailed', reqLogin: true},
     ]},
-    {name: 'Manejos', menu_name: 'manejos', elements: [
-        {name: 'Filamentos', page_name: 'mj_filamentos', to: '/manejos/filamentos'},
-        {name: 'Resinas', page_name: 'mj_resinas', to: '/manejos/resinas'},
-        {name: 'Perfiles', page_name: 'mj_perfiles', to: '/manejos/perfiles'},
-        {name: 'Impresoras', page_name: 'mj_maquinas', to: '/manejos/impresoras'},
+    {name: 'Manejos', menu_name: 'manejos', reqLogin: true, elements: [
+        {name: 'Modelos', page_name: 'mj_modelos', to: '/manejos/modelos', reqLogin: true},
+        {name: 'Cotizaciones', page_name: 'mj_cotizaciones', to: '/manejos/cotizaciones', reqLogin: true},
+        {name: 'Filamentos', page_name: 'mj_filamentos', to: '/manejos/filamentos', reqLogin: true},
+        {name: 'Resinas', page_name: 'mj_resinas', to: '/manejos/resinas', reqLogin: true},
+        {name: 'Perfiles', page_name: 'mj_perfiles', to: '/manejos/perfiles', reqLogin: true},
+        {name: 'Impresoras', page_name: 'mj_maquinas', to: '/manejos/impresoras', reqLogin: true},
+        {name: 'Compras', page_name: 'mj_compras', to: '/manejos/compras', reqLogin: true},
+    ]},
+    {name: 'Dashboards', menu_name: 'dashboards', reqLogin: true, elements: [
+        {name: 'Ventas y Utilidades', page_name: 'db_ventas', to: '/dashboards/ventas', reqLogin: true},
+        {name: 'Eficiencia de Producción', page_name: 'db_produccion', to: '/dashboards/produccion', reqLogin: true},
+        {name: 'Inventario y Stock', page_name: 'db_inventario', to: '/dashboards/inventario', reqLogin: true},
     ]},
 ]

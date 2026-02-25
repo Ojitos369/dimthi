@@ -6,6 +6,8 @@ export const localStates = () => {
     const { s, f } = useStates();
 
     const modelos = useMemo(() => s.calculadora?.modelos || [], [s.calculadora?.modelos]);
+    const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
+    
     const [searchTerm, setSearchTerm] = createState(['catalogo', 'searchTerm'], '');
     const [selectedModeloId, setSelectedModeloId] = createState(['catalogo', 'selectedModeloId'], null);
     const modeloActual = useMemo(() => s.calculadora?.modeloActual || null, [s.calculadora?.modeloActual]);
@@ -30,7 +32,7 @@ export const localStates = () => {
     }, [f]);
 
     return {
-        style,
+        style, logged,
         modelos: filteredModelos,
         searchTerm, setSearchTerm,
         selectedModeloId, modeloActual,

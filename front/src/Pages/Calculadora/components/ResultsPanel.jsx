@@ -2,11 +2,16 @@ import { localStates } from '../localStates';
 import { useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { ModelLink } from './ModelLink';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const ResultsPanel = ({ current }) => {
-    const { style, isFilamento, maquinaName, showDetail, results, handleSaveCotizacion, themeColors } = localStates();
+    const { 
+        style, isFilamento, maquinaName, showDetail, results, handleSaveCotizacion, themeColors,
+        comentarios, setComentarios, precioFinal, setPrecioFinal,
+        nombreCotizacion, setNombreCotizacion, logged
+    } = localStates();
     const fmt = v => (v || 0).toFixed(2);
 
     const chartConfig = useMemo(() => {
@@ -38,8 +43,8 @@ export const ResultsPanel = ({ current }) => {
                 <div className={style.resultBody}>
                     <div className={style.resultLabel}>Precio de Venta Sugerido</div>
                     <div className={style.resultPrice}>${fmt(current.price)}</div>
-                    {showDetail && <div className={style.resultProfit}>Utilidad: ${fmt(current.profit)}</div>}
-                    {showDetail && (
+                    {logged && showDetail && <div className={style.resultProfit}>Utilidad: ${fmt(current.profit)}</div>}
+                    {logged && showDetail && (
                         <div className={style.resultBreakdown}>
                             <div className={style.breakdownRow}><span className={style.breakdownLabel}>{isFilamento?'Material:':'Resina+IPA:'}</span><span className={style.breakdownValue}>${fmt(current.mat)}</span></div>
                             <div className={style.breakdownRow}><span className={style.breakdownLabel}>Energía:</span><span className={style.breakdownValue}>${fmt(current.energy)}</span></div>
@@ -47,12 +52,28 @@ export const ResultsPanel = ({ current }) => {
                             <div className={style.breakdownRow}><span className={style.breakdownLabel}>Mano de Obra:</span><span className={style.breakdownValue}>${fmt(results.labor)}</span></div>
                         </div>
                     )}
-                    <button className={style.btnSaveCotizacion} onClick={handleSaveCotizacion}>
-                        💾 Guardar Cotización
-                    </button>
+                    
+                    {logged && (
+                        <div style={{marginTop: '1rem', borderTop: '1px solid #444', paddingTop: '1rem', textAlign: 'left'}}>
+                            <ModelLink />
+                        
+                        <div style={{color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Nombre (Opcional)</div>
+                        <input type="text" value={nombreCotizacion} onChange={e => setNombreCotizacion(e.target.value)} placeholder="Ej. Llaveros Batman" style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', marginBottom: '0.5rem'}} />
+                        
+                        <div style={{marginTop: '0.5rem', color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Precio Final (Opcional, $)</div>
+                        <input type="number" value={precioFinal || ''} onChange={e => setPrecioFinal(parseFloat(e.target.value) || 0)} placeholder={`Sugerido: $${fmt(current.price)}`} style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', marginBottom: '0.5rem'}} />
+                        
+                        <div style={{color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Comentarios</div>
+                        <textarea value={comentarios} onChange={e => setComentarios(e.target.value)} placeholder="Notas para la cotización..." style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', minHeight: '60px', marginBottom: '1rem'}} />
+                        
+                        <button className={style.btnSaveCotizacion} onClick={handleSaveCotizacion}>
+                            💾 Guardar Cotización
+                        </button>
+                    </div>
+                    )}
                 </div>
             </div>
-            {showDetail && (
+            {logged && showDetail && (
                 <div className={style.chartCard}>
                     <div className={style.chartTitle}>Desglose de Costos</div>
                     <div className={style.chartContainer}><Bar data={chartConfig.data} options={chartConfig.options} /></div>

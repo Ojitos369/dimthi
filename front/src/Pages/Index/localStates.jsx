@@ -5,6 +5,7 @@ import styles from './styles/index.module.scss';
 
 export const localStates = props => {
     const { ls, lf, s, f } = useStates();
+    const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
     const theme = useMemo(() => ls.theme, [ls.theme]);
     const { prod_mode, dev_mode } = useMemo(() => s.app?.modes ?? {}, [s.app?.modes]);
     const actualTheme = useMemo(() => ls.theme, [ls.theme]);
@@ -48,13 +49,17 @@ export const localStates = props => {
     const closeSession = () => {
         f.auth.closeSession();
     }
+    
+    const login = () => {
+        window.location.href = '/login';
+    }
 
     const elementos = useMemo(() => {
         return [
             {name: `Theme: ${actualTheme}`, action: changeTheme},
-            {name: `Cerrar Sesion`, action: closeSession},
+            ...(logged ? [{name: `Cerrar Sesion`, action: closeSession}] : [{name: `Iniciar Sesion`, action: login}]),
         ]
-    }, [actualTheme, changeTheme]);
+    }, [actualTheme, changeTheme, logged]);
 
     return {
         init, toggleNot, 

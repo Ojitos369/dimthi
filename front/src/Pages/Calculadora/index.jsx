@@ -3,7 +3,6 @@ import { NavHeader } from './components/NavHeader';
 import { ProfileCard } from './components/ProfileCard';
 import { BasicControls } from './components/BasicControls';
 import { DetailedCosts } from './components/DetailedCosts';
-import { ModelLink } from './components/ModelLink';
 import { ResultsPanel } from './components/ResultsPanel';
 
 export const Calculadora = () => {
@@ -25,7 +24,6 @@ export const Calculadora = () => {
                     {showDetail && (
                         <>
                             <DetailedCosts />
-                            <ModelLink />
                         </>
                     )}
                 </div>

@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useStates, createState } from '../../Hooks/useStates';
 import style from './styles/index.module.scss';
 
@@ -13,9 +14,9 @@ const defaults = {
 export const localStates = () => {
     const { s, f } = useStates();
 
+    const materialTypeLocal = s.calculadora?.materialType || 'filamento';
     const filamentos = useMemo(() => s.calculadora?.filamentos || [], [s.calculadora?.filamentos]);
     const resinas = useMemo(() => s.calculadora?.resinas || [], [s.calculadora?.resinas]);
-    const perfiles = useMemo(() => s.calculadora?.perfiles || [], [s.calculadora?.perfiles]);
     const modelos = useMemo(() => s.calculadora?.modelos || [], [s.calculadora?.modelos]);
     const maquinas = useMemo(() => s.calculadora?.maquinas || [], [s.calculadora?.maquinas]);
 
@@ -44,15 +45,71 @@ export const localStates = () => {
     // Material type & detail
     const [materialType, setMaterialType] = createState(['calc', 'materialType'], 'filamento');
     const [showDetail, setShowDetail] = createState(['calc', 'showDetail'], false);
+    const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
+
+    useEffect(() => {
+        if (s.page?.actual === 'calculadora_detallada') {
+            setShowDetail(true);
+        }
+    }, [s.page?.actual]);
+
+    const perfiles = useMemo(() => {
+        const allPerfiles = s.calculadora?.perfiles || [];
+        return allPerfiles.filter(p => {
+            if (materialType === 'filamento') {
+                return !!p.filamento_id;
+            } else if (materialType === 'resina') {
+                return !!p.resina_id;
+            }
+            return false;
+        });
+    }, [s.calculadora?.perfiles, materialType]);
 
     // Filamento/resina seleccionado del catálogo
     const [selectedFilamentoId, setSelectedFilamentoId] = createState(['calc', 'selectedFilamentoId'], '');
     const [selectedResinaId, setSelectedResinaId] = createState(['calc', 'selectedResinaId'], '');
 
-    // Modelo para ligar
-    const [selectedModeloId, setSelectedModeloId] = createState(['calc', 'selectedModeloId'], '');
+    // Modelos para ligar
+    const [selectedModelos, setSelectedModelos] = createState(['calc', 'selectedModelos'], []);
+    const [comentarios, setComentarios] = createState(['calc', 'comentarios'], '');
+    const [nombreCotizacion, setNombreCotizacion] = createState(['calc', 'nombreCotizacion'], '');
+    const [precioFinal, setPrecioFinal] = createState(['calc', 'precioFinal'], 0);
     const [newModeloName, setNewModeloName] = createState(['calc', 'newModeloName'], '');
     const [showNewModelo, setShowNewModelo] = createState(['calc', 'showNewModelo'], false);
+
+    // --- LOCAL STORAGE PERSISTENCE ---
+    useEffect(() => {
+        const saved = localStorage.getItem('dimt_calculadora_state');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.timeHours !== undefined) setTimeHours(parsed.timeHours);
+                if (parsed.timeMinutes !== undefined) setTimeMinutes(parsed.timeMinutes);
+                if (parsed.energyTariff !== undefined) setEnergyTariff(parsed.energyTariff);
+                if (parsed.fdmWeightG !== undefined) setFdmWeightG(parsed.fdmWeightG);
+                if (parsed.resinVolMl !== undefined) setResinVolMl(parsed.resinVolMl);
+                if (parsed.laborMinutes !== undefined) setLaborMinutes(parsed.laborMinutes);
+                if (parsed.filamentCost !== undefined) setFilamentCost(parsed.filamentCost);
+                if (parsed.resinCost !== undefined) setResinCost(parsed.resinCost);
+                if (parsed.ipaCost !== undefined) setIpaCost(parsed.ipaCost);
+                if (parsed.marginPercent !== undefined) setMarginPercent(parsed.marginPercent);
+                if (parsed.materialType !== undefined) setMaterialType(parsed.materialType);
+                if (parsed.selectedMaquinaId !== undefined) setSelectedMaquinaId(parsed.selectedMaquinaId);
+                if (parsed.selectedFilamentoId !== undefined) setSelectedFilamentoId(parsed.selectedFilamentoId);
+                if (parsed.selectedResinaId !== undefined) setSelectedResinaId(parsed.selectedResinaId);
+                if (parsed.activeProfileId !== undefined) setActiveProfileId(parsed.activeProfileId);
+            } catch(e) { console.log('Error parsing local storage config'); }
+        }
+    }, []);
+
+    useEffect(() => {
+        const toSave = {
+            timeHours, timeMinutes, energyTariff, fdmWeightG, resinVolMl, laborMinutes,
+            filamentCost, resinCost, ipaCost, marginPercent, materialType,
+            selectedMaquinaId, selectedFilamentoId, selectedResinaId, activeProfileId
+        };
+        localStorage.setItem('dimt_calculadora_state', JSON.stringify(toSave));
+    }, [timeHours, timeMinutes, energyTariff, fdmWeightG, resinVolMl, laborMinutes, filamentCost, resinCost, ipaCost, marginPercent, materialType, selectedMaquinaId, selectedFilamentoId, selectedResinaId, activeProfileId]);
 
     const toggleMaterialType = useCallback(() => {
         setMaterialType(materialType === 'filamento' ? 'resina' : 'filamento');
@@ -148,6 +205,7 @@ export const localStates = () => {
         if (!newProfileName.trim()) return;
         const data = {
             nombre: newProfileName,
+            tipo_material: materialType,
             filamento_id: selectedFilamentoId || null,
             resina_id: selectedResinaId || null,
             maquina_id: selectedMaquinaId || null,
@@ -168,6 +226,7 @@ export const localStates = () => {
         const data = {
             id: activeProfileId,
             nombre: perfiles.find(p => p.id === activeProfileId)?.nombre || 'Perfil',
+            tipo_material: materialType,
             filamento_id: selectedFilamentoId || null,
             resina_id: selectedResinaId || null,
             maquina_id: selectedMaquinaId || null,
@@ -187,11 +246,11 @@ export const localStates = () => {
     const handleCreateModelo = useCallback(() => {
         if (!newModeloName.trim()) return;
         f.calculadora.saveModelo({ nombre: newModeloName }, (res) => {
-            if (res.id) setSelectedModeloId(res.id);
+            if (res.id) setSelectedModelos(prev => Array.from(new Set([...prev, res.id])));
             setNewModeloName('');
             setShowNewModelo(false);
         });
-    }, [newModeloName, f.calculadora]);
+    }, [newModeloName, f.calculadora, setSelectedModelos]);
 
     // ---- Inline material creation ----
     const [showNewFilamento, setShowNewFilamento] = createState(['calc', 'showNewFilamento'], false);
@@ -233,8 +292,24 @@ export const localStates = () => {
     const handleSaveCotizacion = useCallback(() => {
         const isFilamento = materialType === 'filamento';
         const current = isFilamento ? results.fdm : results.resin;
+        const finalP = precioFinal > 0 ? precioFinal : current.price;
+        
+        const snapshot = {
+            materiaL_type: materialType,
+            material_id: isFilamento ? selectedFilamentoId : selectedResinaId,
+            material_cost: isFilamento ? filamentCost : resinCost,
+            machine_id: selectedMaquinaId,
+            time_h: timeHours,
+            time_m: timeMinutes,
+            weight_g: fdmWeightG,
+            volume_ml: resinVolMl,
+            labor_m: laborMinutes,
+            margin_p: marginPercent,
+            results: current
+        };
+
         const data = {
-            modelo_id: selectedModeloId || null,
+            modelos: selectedModelos,
             perfil_id: activeProfileId || null,
             tipo_material: materialType,
             precio_venta: current.price,
@@ -244,11 +319,15 @@ export const localStates = () => {
             tiempo_minutos: timeMinutes,
             peso_g: isFilamento ? fdmWeightG : null,
             volumen_ml: !isFilamento ? resinVolMl : null,
+            comentarios: comentarios,
+            precio_final: finalP,
+            nombre: nombreCotizacion,
+            snapshot_data: JSON.stringify(snapshot)
         };
         f.calculadora.saveCotizacion(data, () => {
             f.general?.notificacion?.({ mode: 'success', title: 'Cotización', message: 'Cotización guardada correctamente' });
         });
-    }, [materialType, results, selectedModeloId, activeProfileId, timeHours, timeMinutes, fdmWeightG, resinVolMl, f]);
+    }, [materialType, results, selectedModelos, activeProfileId, timeHours, timeMinutes, fdmWeightG, resinVolMl, comentarios, precioFinal, f]);
 
     // Theme logic
     const themeColors = useMemo(() => {
@@ -300,9 +379,10 @@ export const localStates = () => {
         timeHours, timeMinutes, energyTariff, fdmWeightG, resinVolMl, laborMinutes,
         filamentCost, resinCost, ipaCost, marginPercent,
         activeProfileId, profileDirty, newProfileName,
-        materialType, showDetail, isFilamento,
-        selectedFilamentoId, selectedResinaId,
-        selectedModeloId, newModeloName, showNewModelo,
+        materialType, showDetail, isFilamento, logged,
+        selectedModelos, setSelectedModelos, newModeloName, showNewModelo,
+        nombreCotizacion, setNombreCotizacion,
+        comentarios, precioFinal, setComentarios, setPrecioFinal,
         selectedMaquinaId, setSelectedMaquinaId, selectedMaquina, maquinaName,
         // Inline creation
         showNewFilamento, setShowNewFilamento, newFilNombre, setNewFilNombre, newFilColor, setNewFilColor, newFilPrecio, setNewFilPrecio,
@@ -313,7 +393,7 @@ export const localStates = () => {
         setFdmWeightG, setResinVolMl, setLaborMinutes,
         setFilamentCost, setResinCost, setIpaCost,
         setMarginPercent, setActiveProfileId, setNewProfileName,
-        setSelectedModeloId, setNewModeloName, setShowNewModelo,
+        setNewModeloName, setShowNewModelo,
         // Actions
         toggleMaterialType, toggleDetail, markDirty,
         handleSelectFilamento, handleSelectResina,
@@ -325,15 +405,21 @@ export const localStates = () => {
 
 export const localEffects = () => {
     const { f } = useStates();
+    const location = useLocation();
+    
     useEffect(() => {
-        f.u1('page', 'actual', 'calculadora');
+        const query = new URLSearchParams(location.search);
+        const isDetailed = query.get('mode') === 'detailed';
+        
+        f.u1('page', 'actual', isDetailed ? 'calculadora_detallada' : 'calculadora');
         f.u1('page', 'actualMenu', 'calculadora');
-        f.u1('page', 'title', 'Calculadora 3D');
+        f.u1('page', 'title', isDetailed ? 'Calculadora Detallada' : 'Calculadora 3D');
+        
         f.calculadora.getFilamentos();
         f.calculadora.getResinas();
         f.calculadora.getPerfiles();
         f.calculadora.getModelos();
         f.calculadora.getMaquinas();
-    }, []);
+    }, [location.search]);
 };
 

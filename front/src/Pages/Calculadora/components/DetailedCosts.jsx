@@ -11,7 +11,7 @@ export const DetailedCosts = () => {
         showNewResina, setShowNewResina, newResNombre, setNewResNombre, newResColor, setNewResColor, newResPrecio, setNewResPrecio, handleCreateResina,
         filamentCost, setFilamentCost, resinCost, setResinCost, ipaCost, setIpaCost,
         energyTariff, setEnergyTariff, laborMinutes, setLaborMinutes,
-        marginPercent, setMarginPercent
+        marginPercent, setMarginPercent, logged
     } = localStates();
 
     return (
@@ -26,9 +26,9 @@ export const DetailedCosts = () => {
                             <option value="">— Impresora por defecto —</option>
                             {maquinas.filter(m => m.tipo === (materialType === 'filamento' ? 'fdm' : 'sla')).map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                         </select>
-                        <button className={style.btnAddInline} onClick={() => setShowNewMaquina(!showNewMaquina)}>＋</button>
+                        {logged && <button className={style.btnAddInline} onClick={() => setShowNewMaquina(!showNewMaquina)}>＋</button>}
                     </div>
-                    {showNewMaquina && (
+                    {logged && showNewMaquina && (
                         <div className={style.inlineCreateRow}>
                             <input type="text" placeholder="Nombre de impresora nueva..." value={newMaqNombre} onChange={e => setNewMaqNombre(e.target.value)} className={style.saveNewInput} style={{flex: 1}} />
                             <button className={style.btnSaveNew} onClick={handleCreateMaquina}>Crear</button>
@@ -45,9 +45,9 @@ export const DetailedCosts = () => {
                                 <option value="">— Manual —</option>
                                 {filamentos.map(f => <option key={f.id} value={f.id}>{f.nombre} - ${parseFloat(f.precio_kg||0).toFixed(0)}/kg</option>)}
                             </select>
-                            <button className={style.btnAddInline} onClick={() => setShowNewFilamento(!showNewFilamento)}>＋</button>
+                            {logged && <button className={style.btnAddInline} onClick={() => setShowNewFilamento(!showNewFilamento)}>＋</button>}
                         </div>
-                        {showNewFilamento && (
+                        {logged && showNewFilamento && (
                             <div className={style.inlineCreateRow}>
                                 <input type="text" placeholder="Nombre..." value={newFilNombre} onChange={e => setNewFilNombre(e.target.value)} className={style.saveNewInput} />
                                 <input type="color" value={newFilColor} onChange={e => setNewFilColor(e.target.value)} style={{width: '32px', height: '32px', padding: '0', border: 'none', borderRadius: '4px', cursor: 'pointer', flexShrink: 0}} />
@@ -67,9 +67,9 @@ export const DetailedCosts = () => {
                                 <option value="">— Manual —</option>
                                 {resinas.map(r => <option key={r.id} value={r.id}>{r.nombre} - ${parseFloat(r.precio_kg||0).toFixed(0)}/kg</option>)}
                             </select>
-                            <button className={style.btnAddInline} onClick={() => setShowNewResina(!showNewResina)}>＋</button>
+                            {logged && <button className={style.btnAddInline} onClick={() => setShowNewResina(!showNewResina)}>＋</button>}
                         </div>
-                        {showNewResina && (
+                        {logged && showNewResina && (
                             <div className={style.inlineCreateRow}>
                                 <input type="text" placeholder="Nombre..." value={newResNombre} onChange={e => setNewResNombre(e.target.value)} className={style.saveNewInput} />
                                 <input type="color" value={newResColor} onChange={e => setNewResColor(e.target.value)} style={{width: '32px', height: '32px', padding: '0', border: 'none', borderRadius: '4px', cursor: 'pointer', flexShrink: 0}} />

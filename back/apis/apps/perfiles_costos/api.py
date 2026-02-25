@@ -56,6 +56,7 @@ class SavePerfil(NoSession, BaseApi):
         perfil = {
             "id": id_perfil,
             "nombre": self.data["nombre"],
+            "tipo_material": self.data.get("tipo_material", "filamento"),
             "filamento_id": self.data.get("filamento_id", None),
             "resina_id": self.data.get("resina_id", None),
             "maquina_id": self.data.get("maquina_id", None),
@@ -69,14 +70,15 @@ class SavePerfil(NoSession, BaseApi):
         if not self.existe:
             query = """
             INSERT INTO perfiles_costos
-            (id, nombre, filamento_id, resina_id, maquina_id, luz_kw, desgaste_impresora, mano_obra, gastos_generales, margen_utilidad)
+            (id, nombre, tipo_material, filamento_id, resina_id, maquina_id, luz_kw, desgaste_impresora, mano_obra, gastos_generales, margen_utilidad)
             VALUES
-            (:id, :nombre, :filamento_id, :resina_id, :maquina_id, :luz_kw, :desgaste_impresora, :mano_obra, :gastos_generales, :margen_utilidad)
+            (:id, :nombre, :tipo_material, :filamento_id, :resina_id, :maquina_id, :luz_kw, :desgaste_impresora, :mano_obra, :gastos_generales, :margen_utilidad)
             """
         else:
             query = """
             UPDATE perfiles_costos
             SET nombre = :nombre,
+                tipo_material = :tipo_material,
                 filamento_id = :filamento_id,
                 resina_id = :resina_id,
                 maquina_id = :maquina_id,

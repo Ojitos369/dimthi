@@ -48,12 +48,13 @@ class SaveResina(NoSession, BaseApi):
             "marca": self.data.get("marca", None),
             "peso_kg": self.data.get("peso_kg", 1),
             "precio_kg": self.data["precio_kg"],
+            "link_compra": self.data.get("link_compra", None),
         }
 
         if not self.existe:
             query = """
-            INSERT INTO resinas (id, nombre, color, marca, peso_kg, precio_kg)
-            VALUES (:id, :nombre, :color, :marca, :peso_kg, :precio_kg)
+            INSERT INTO resinas (id, nombre, color, marca, peso_kg, precio_kg, link_compra)
+            VALUES (:id, :nombre, :color, :marca, :peso_kg, :precio_kg, :link_compra)
             """
         else:
             query = """
@@ -62,7 +63,8 @@ class SaveResina(NoSession, BaseApi):
                 color = :color,
                 marca = :marca,
                 peso_kg = :peso_kg,
-                precio_kg = :precio_kg
+                precio_kg = :precio_kg,
+                link_compra = :link_compra
             WHERE id = :id
             """
 

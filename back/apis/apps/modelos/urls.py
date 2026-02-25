@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from .api import GetModelos, GetModelo, SaveModelo, DeleteModelo
+from .api import GetModelos, GetModelo, SaveModelo, DeleteModelo, SaveModeloArchivo, DeleteModeloArchivo, ExtractMakerworld, DownloadModeloArchivoFromUrl, SaveModeloArchivoLink
 
 router = APIRouter()
 
@@ -25,4 +25,31 @@ async def save_modelo(request: Request):
 @router.delete("/delete_modelo")
 async def delete_modelo(request: Request):
     r = await DeleteModelo(request=request).run()
+    return r
+
+
+@router.post("/save_modelo_archivo")
+async def save_modelo_archivo(request: Request):
+    r = await SaveModeloArchivo(request=request).run()
+    return r
+
+
+@router.delete("/delete_modelo_archivo")
+async def delete_modelo_archivo(request: Request):
+    r = await DeleteModeloArchivo(request=request).run()
+    return r
+
+@router.post("/extract_makerworld")
+async def extract_makerworld(request: Request):
+    r = await ExtractMakerworld(request=request).run()
+    return r
+
+@router.post("/download_modelo_archivo_from_url")
+async def download_modelo_archivo_from_url(request: Request):
+    r = await DownloadModeloArchivoFromUrl(request=request).run()
+    return r
+
+@router.post("/save_modelo_archivo_link")
+async def save_modelo_archivo_link(request: Request):
+    r = await SaveModeloArchivoLink(request=request).run()
     return r

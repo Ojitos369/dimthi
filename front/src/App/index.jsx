@@ -13,8 +13,15 @@ import { CatMaquinas } from '../Pages/Catalogos/Maquinas';
 import { Modelos as ModelosPage } from '../Pages/Modelos';
 import { ManejoFilamentos } from '../Pages/Manejos/Filamentos';
 import { ManejoResinas } from '../Pages/Manejos/Resinas';
+import { ManejoModelos } from '../Pages/Manejos/Modelos';
+import { ManejoCotizaciones } from '../Pages/Manejos/Cotizaciones';
 import { ManejoPerfiles } from '../Pages/Manejos/Perfiles';
 import { ManejoMaquinas } from '../Pages/Manejos/Maquinas';
+import { ManejoCompras } from '../Pages/Manejos/Compras';
+
+import { SalesDashboard as VentasDashboard } from '../Pages/Dashboards/Ventas';
+import { ProductionDashboard } from '../Pages/Dashboards/Produccion';
+import { InventoryDashboard } from '../Pages/Dashboards/Inventario';
 
 import { Login as LoginPage } from '../Pages/Login';
 import { P404 } from '../Pages/P404';
@@ -42,24 +49,11 @@ function AppUI() {
         f.auth.validateLogin();
     }, [location.href]);
 
-    if (!logged) {
-        return (
-            <div className={`text-[var(--my-minor)] bg-my-${ls.theme}`}>
-                <Routes>
-                    <Route path="" element={ <LoginPage /> } />
-                    <Route path="test" element={ <TestPage /> } />
-                    <Route path="*" element={ <LoginPage /> } />
-                </Routes>
-                <Theme />
-                {!!s.modals?.general?.notification &&
-                <GeneralNotification />}
-            </div>
-        )
-    }
-
     return (
         <div className={`text-[var(--my-minor)] bg-my-${ls.theme}`}>
             <Routes>
+                <Route path="login" element={ <LoginPage /> } />
+                <Route path="test" element={ <TestPage /> } />
                 <Route path="" element={ <MainPage /> } >
                     <Route path="" element={ <CatalogoPage /> } />
                     {/* Catalogos */}
@@ -72,8 +66,16 @@ function AppUI() {
                     {/* Manejos */}
                     <Route path="manejos/filamentos/*" element={ <ManejoFilamentos /> } />
                     <Route path="manejos/resinas/*" element={ <ManejoResinas /> } />
+                    <Route path="manejos/modelos/*" element={ <ManejoModelos /> } />
+                    <Route path="manejos/cotizaciones/*" element={ <ManejoCotizaciones /> } />
                     <Route path="manejos/perfiles/*" element={ <ManejoPerfiles /> } />
                     <Route path="manejos/impresoras/*" element={ <ManejoMaquinas /> } />
+                    <Route path="manejos/compras/*" element={ <ManejoCompras /> } />
+                    
+                    <Route path="dashboards/ventas/*" element={ <VentasDashboard /> } />
+                    <Route path="dashboards/produccion/*" element={ <ProductionDashboard /> } />
+                    <Route path="dashboards/inventario/*" element={ <InventoryDashboard /> } />
+                    
                     <Route path="*" element={ <P404 /> } />
                 </Route>
             </Routes>

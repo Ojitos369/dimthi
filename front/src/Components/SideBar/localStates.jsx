@@ -14,9 +14,21 @@ export const localStates = () => {
     const [menusAbiertos, setMenusAbiertos] = createState(['sidebar', 'menusAbiertos'], {});
     const [menuBarMode, setMenuBarMode] = createState(['menubar', 'menuMode'], null);
 
+    const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
+
     const elementos = useMemo(() => {
-        return pages.map(page => {return {...page, opened: menusAbiertos[page.menu_name]}})
-    }, [menusAbiertos, pages]);
+        return pages
+            .filter(page => (!page.reqLogin || logged))
+            .map(page => {
+                const visibleElements = page.elements?.filter(e => (!e.reqLogin || logged)) || [];
+                return {
+                    ...page,
+                    elements: visibleElements,
+                    opened: menusAbiertos[page.menu_name],
+                    show: visibleElements.length > 0
+                };
+            });
+    }, [menusAbiertos, pages, logged]);
 
     const toggleMenu = menu => {
         setMenusAbiertos({ [menu]: !menusAbiertos[menu] });

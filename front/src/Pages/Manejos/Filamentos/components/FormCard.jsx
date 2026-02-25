@@ -3,6 +3,7 @@ export const FormCard = ({ ls }) => {
         style, editId, nombre, setNombre,
         color, setColor, marca, setMarca,
         pesoKg, setPesoKg, precioKg, setPrecioKg,
+        linkCompra, setLinkCompra,
         cancel, handleSave
     } = ls;
 
@@ -49,6 +50,7 @@ export const FormCard = ({ ls }) => {
                     <div><div className={style.formLabel}>Peso (kg)</div><input type="number" className={style.formInput} value={pesoKg} onChange={e => setPesoKg(parseFloat(e.target.value)||0)} /></div>
                     <div><div className={style.formLabel}>Precio por kg ($)</div><input type="number" className={style.formInput} value={precioKg} onChange={e => setPrecioKg(parseFloat(e.target.value)||0)} /></div>
                 </div>
+                <div><div className={style.formLabel}>Link Compra</div><input className={style.formInput} value={linkCompra} onChange={e => setLinkCompra(e.target.value)} placeholder="https://mercadolibre.com.mx/..." /></div>
                 <div className={style.formActions}>
                     <button className={style.btnCancel} onClick={cancel}>Cancelar</button>
                     <button className={style.btnSave} onClick={handleSave}>{editId ? 'Actualizar' : 'Guardar'}</button>

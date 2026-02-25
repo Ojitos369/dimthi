@@ -1,11 +1,20 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStates } from '../../Hooks/useStates';
 import style from './styles/index.module.scss';
 
 const myStates = () => {
     const { s, f } = useStates();
+    const navigate = useNavigate();
     const usuario = useMemo(() => s.auth?.form?.usuario ?? '', [s.auth?.form?.usuario]);
     const passwd = useMemo(() => s.auth?.form?.passwd ?? '', [s.auth?.form?.passwd]);
+    const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
+
+    useEffect(() => {
+        if (logged) {
+            navigate('/');
+        }
+    }, [logged]);
 
     const updateUsuario = (e) => {
         const value = e.target.value;

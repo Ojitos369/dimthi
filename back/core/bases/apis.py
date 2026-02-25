@@ -65,7 +65,12 @@ class BaseApi(ClassBase):
 
     async def get_post_data(self):
         try:
-            data = await self.request.json()
+            content_type = self.request.headers.get("content-type", "")
+            if "multipart/form-data" in content_type:
+                form = await self.request.form()
+                data = {key: value for key, value in form.items()}
+            else:
+                data = await self.request.json()
         except Exception as e:
             data = {}
         for key, value in data.items():
