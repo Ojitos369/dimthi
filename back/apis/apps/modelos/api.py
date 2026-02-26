@@ -113,9 +113,10 @@ class SaveModelo(NoSession, BaseApi):
         link_val = self.data.get("link", None)
         
         # Si tiene link es publico, si no es privado
-        # estatus_validacion por default pendiente si es la primera vez
+        # Si tiene link se considera validado de una vez
         estatus_privacidad = self.data.get("estatus_privacidad", "publico" if link_val else "privado")
-        estatus_validacion = self.data.get("estatus_validacion", "pendiente")
+        default_validacion = "validado" if link_val else "pendiente"
+        estatus_validacion = self.data.get("estatus_validacion", default_validacion)
 
         modelo = {
             "id": id_modelo,
