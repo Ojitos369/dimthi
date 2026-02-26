@@ -283,6 +283,16 @@ export const calculadora = props => {
         .catch(err => { console.log(err); });
     }
 
+    const saveArchivoPendiente = (formData, callback) => {
+        miAxios.post('apps/cotizaciones_pendientes/save_archivo_pendiente', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        .then(res => {
+            if (callback) callback(res.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
     return {
         getFilamentos, saveFilamento, deleteFilamento,
         getResinas, saveResina, deleteResina,
@@ -292,7 +302,7 @@ export const calculadora = props => {
         saveModeloArchivo, deleteModeloArchivo, extractMakerworld, downloadModeloArchivoFromUrl, saveModeloArchivoLink,
         getMaquinas, saveMaquina, deleteMaquina,
         getCompras, saveCompra, deleteCompra,
-        getPendientes, savePendiente, resolvePendiente,
+        getPendientes, savePendiente, resolvePendiente, saveArchivoPendiente,
     }
 }
 

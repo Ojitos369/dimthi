@@ -1,4 +1,6 @@
 from core.bases.apis import NoSession, BaseApi
+import os
+from core.conf.settings import MEDIA_DIR
 
 class GetPendientes(NoSession, BaseApi):
     def main(self):
@@ -12,11 +14,19 @@ class GetPendientes(NoSession, BaseApi):
                 'modelo_id', cmp.modelo_id, 
                 'cantidad', cmp.cantidad,
                 'nombre_modelo', m.nombre,
+                'descripcion_modelo', m.descripcion,
+                'link_modelo', m.link,
                 'archivos', (SELECT json_agg(json_build_object('id', am.id, 'archivo_url', am.archivo_url)) FROM (SELECT id, archivo_url FROM archivos_modelos am2 WHERE am2.modelo_id = m.id ORDER BY am2.created_at DESC LIMIT 5) am)
             )) 
             FROM cotizacion_modelos_pendientes cmp
             JOIN modelos m ON cmp.modelo_id = m.id
-            WHERE cmp.cotizacion_pdte_id = cp.id) as modelos_data
+            WHERE cmp.cotizacion_pdte_id = cp.id) as modelos_data,
+            (SELECT json_agg(json_build_object(
+                'id', acp.id,
+                'archivo_url', acp.archivo_url
+            ))
+            FROM archivos_cotizaciones_pendientes acp
+            WHERE acp.cotizacion_pdte_id = cp.id) as archivos_adjuntos
         FROM cotizaciones_pendientes cp
         WHERE cp.estado = :estado
         ORDER BY cp.created_at DESC
@@ -78,3 +88,34 @@ class ResolvePendiente(NoSession, BaseApi):
             
         self.conexion.commit()
         self.response = {"id": id_pendiente}
+
+
+class SaveArchivoPendiente(NoSession, BaseApi):
+    def main(self):
+        self.show_me()
+        cotizacion_pdte_id = self.data.get("cotizacion_pdte_id")
+        file = self.data.get("file")
+        if not cotizacion_pdte_id or not file:
+            raise self.MYE("Faltan datos")
+
+        folder_path = os.path.join(MEDIA_DIR, "cotizaciones_pendientes", str(cotizacion_pdte_id))
+        os.makedirs(folder_path, exist_ok=True)
+        
+        filename = file.filename
+        file_path = os.path.join(folder_path, filename)
+        
+        contents = file.file.read()
+        with open(file_path, 'wb') as f:
+            f.write(contents)
+            
+        archivo_url = f"cotizaciones_pendientes/{cotizacion_pdte_id}/{filename}"
+        
+        id_archivo = self.get_id()
+        query = """
+        INSERT INTO archivos_cotizaciones_pendientes (id, cotizacion_pdte_id, archivo_url)
+        VALUES (:id, :cotizacion_pdte_id, :archivo_url)
+        """
+        self.conexion.ejecutar(query, {"id": id_archivo, "cotizacion_pdte_id": cotizacion_pdte_id, "archivo_url": archivo_url})
+        self.conexion.commit()
+        
+        self.response = {"id": id_archivo, "url": archivo_url}

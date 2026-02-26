@@ -111,7 +111,7 @@ const ModelCard = ({ m, style, selectModelo, addToPendingCart, pendingCart }) =>
                                 }}
                                 disabled={!!pendingCart.find(x => x.id === m.id)}
                             >
-                                {pendingCart.find(x => x.id === m.id) ? 'En Carrito' : 'Solicitar Cotización'}
+                                {pendingCart.find(x => x.id === m.id) ? '✔ En cotización' : 'Solicitar Cotización'}
                             </button>
                             {m.cotizaciones_pendientes > 0 && (
                                 <span style={{ 

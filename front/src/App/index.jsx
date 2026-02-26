@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { cambiarThema } from '../Core/helper';
 import { Theme } from '../Components/Theme';
@@ -33,6 +33,33 @@ import { useStates } from '../Hooks/useStates';
 import { GeneralNotification } from '../Components/Modals/general/GeneralNotification';
 
 
+const GlobalLoader = () => {
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const show = () => setLoading(true);
+        const hide = () => setLoading(false);
+        window.addEventListener('show_global_loader', show);
+        window.addEventListener('hide_global_loader', hide);
+        return () => {
+            window.removeEventListener('show_global_loader', show);
+            window.removeEventListener('hide_global_loader', hide);
+        };
+    }, []);
+
+    if (!loading) return null;
+
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ padding: '20px 40px', background: '#111', borderRadius: '12px', border: '1px solid #333', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
+                <div style={{ width: '40px', height: '40px', border: '4px solid rgba(124, 58, 237, 0.2)', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <span style={{ color: '#ccc', fontSize: '0.9rem', fontWeight: 500 }}>Cargando...</span>
+            </div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+    );
+};
+
 function AppUI() {
     const { ls, s, f } = useStates();
     const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
@@ -51,6 +78,7 @@ function AppUI() {
 
     return (
         <div className={`text-[var(--my-minor)] bg-my-${ls.theme}`}>
+            <GlobalLoader />
             <Routes>
                 <Route path="login" element={ <LoginPage /> } />
                 <Route path="test" element={ <TestPage /> } />

@@ -6,6 +6,12 @@ const formatDate = (dateStr) => {
     return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
+const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `http://localhost:8369/media/${url}`;
+};
+
 export const DetailModal = ({ ls }) => {
     const { style, cotizaciones, detailId, closeDetail } = ls;
     const item = cotizaciones.find(c => c.id === detailId);
@@ -36,9 +42,30 @@ export const DetailModal = ({ ls }) => {
                         <div style={{ fontSize: '0.8rem', color: '#888' }}>Nombre / Título:</div>
                         <div style={{ fontSize: '0.9rem', color: '#fff' }}>{item.nombre || 'Sin Título'}</div>
                     </div>
-                    <div>
-                        <div style={{ fontSize: '0.8rem', color: '#888' }}>Modelos Ligados:</div>
-                        <div style={{ fontSize: '0.9rem', color: '#fff' }}>{item.modelos?.map(m => m.nombre).join(', ') || 'Ninguno'}</div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                        <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>Modelos Ligados y Archivos:</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {item.modelos?.length > 0 ? item.modelos.map((m, idx) => (
+                                <div key={idx} style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '6px', border: '1px solid #333' }}>
+                                    <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 500, marginBottom: '6px' }}>{m.nombre}</div>
+                                    {m.archivos?.length > 0 ? (
+                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                            {m.archivos.map((a, i) => (
+                                                <a key={i} href={getImageUrl(a.archivo_url)} target="_blank" rel="noreferrer" style={{ display: 'block', width: '50px', height: '50px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #444' }}>
+                                                    <img src={getImageUrl(a.archivo_url)} alt="mod" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.style.display='none'; e.target.parentNode.innerHTML='<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#222;font-size:0.75rem;color:#888;">Archivo</div>' }} />
+                                                </a>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div style={{ fontSize: '0.75rem', color: '#666' }}>Sin archivos</div>
+                                    )}
+                                </div>
+                            )) : <div style={{ fontSize: '0.9rem', color: '#fff' }}>Ninguno</div>}
+                        </div>
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                        <div style={{ fontSize: '0.8rem', color: '#888' }}>Comentarios:</div>
+                        <div style={{ fontSize: '0.9rem', color: '#fff', fontStyle: 'italic', background: 'rgba(0,0,0,0.3)', padding: '8px', borderRadius: '4px', borderLeft: '2px solid #7c3aed' }}>{item.comentarios || 'Sin comentarios'}</div>
                     </div>
                     <div>
                         <div style={{ fontSize: '0.8rem', color: '#888' }}>Fecha de Creación:</div>

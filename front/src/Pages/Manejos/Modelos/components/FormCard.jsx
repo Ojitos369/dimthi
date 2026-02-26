@@ -1,4 +1,5 @@
 import React from 'react';
+import { FileDropZone } from '../../../../Components/FileDropZone';
 
 export const FormCard = ({ ls }) => {
     const {
@@ -14,20 +15,10 @@ export const FormCard = ({ ls }) => {
         return url.startsWith('http') ? url : `/api/media/${url}`;
     };
 
-    const [isDragging, setIsDragging] = React.useState(false);
-
-    const onDragOver = e => { e.preventDefault(); setIsDragging(true); };
-    const onDragLeave = e => { e.preventDefault(); setIsDragging(false); };
-    const onDrop = e => {
-        e.preventDefault();
-        setIsDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            handleFileUpload(e.dataTransfer.files[0]);
-        }
-    };
-    const onPaste = e => {
-        if (e.clipboardData.files && e.clipboardData.files.length > 0) {
-            handleFileUpload(e.clipboardData.files[0]);
+    const handleDropFile = (files) => {
+        // Upload first file from the drop/paste
+        if (files.length > 0 && handleFileUpload) {
+            files.forEach(f => handleFileUpload(f));
         }
     };
 
@@ -78,27 +69,38 @@ export const FormCard = ({ ls }) => {
                 </div>
                 
                 {editId && (
-                    <div 
-                        style={{marginTop: '1rem', borderTop: '1px solid #333', paddingTop: '1rem', border: isDragging ? '2px dashed #3b82f6' : '1px solid transparent', transition: 'border 0.2s', padding: '1rem'}}
-                        onDragOver={onDragOver}
-                        onDragLeave={onDragLeave}
-                        onDrop={onDrop}
-                        onPaste={onPaste}
-                        tabIndex={0}
-                    >
-                        <div className={style.formLabel}>Archivos Multimedia (Arrastra, Pega o Selecciona)</div>
-                        <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem'}}>
-                            {archivos.map(a => (
-                                <div key={a.id} style={{position: 'relative', width: '100px', height: '100px', backgroundColor: '#222', borderRadius: '8px', overflow: 'hidden'}}>
-                                    <img src={resolveMediaUrl(a.archivo_url)} alt="media" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-                                    <button 
-                                        onClick={() => handleDeleteArchivo(a.id)}
-                                        style={{position: 'absolute', top: 0, right: 0, background: 'rgba(255,0,0,0.8)', color: 'white', border: 'none', cursor: 'pointer', padding: '2px 6px', borderBottomLeftRadius: '8px'}}
-                                    >✕</button>
-                                </div>
-                            ))}
-                        </div>
-                        <input type="file" onChange={handleFileChange} accept="image/*,video/*,.gif" style={{color: '#aaa', fontSize: '0.9rem'}} />
+                    <div style={{marginTop: '1rem', borderTop: '1px solid #333', paddingTop: '1rem'}}>
+                        <div className={style.formLabel} style={{marginBottom: '0.75rem'}}>Archivos Multimedia</div>
+                        
+                        {/* Existing files thumbnails */}
+                        {archivos.length > 0 && (
+                            <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem'}}>
+                                {archivos.map(a => (
+                                    <div key={a.id} style={{position: 'relative', width: '100px', height: '100px', backgroundColor: '#222', borderRadius: '8px', overflow: 'hidden'}}>
+                                        <img src={resolveMediaUrl(a.archivo_url)} alt="media" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                                        <button 
+                                            onClick={() => handleDeleteArchivo(a.id)}
+                                            style={{position: 'absolute', top: 0, right: 0, background: 'rgba(255,0,0,0.8)', color: 'white', border: 'none', cursor: 'pointer', padding: '2px 6px', borderBottomLeftRadius: '8px'}}
+                                        >✕</button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        
+                        {/* Drop zone for new files */}
+                        <FileDropZone 
+                            files={[]}
+                            setFiles={(newFiles) => {
+                                if (typeof newFiles === 'function') {
+                                    const result = newFiles([]);
+                                    result.forEach(f => handleFileUpload(f));
+                                } else {
+                                    newFiles.forEach(f => handleFileUpload(f));
+                                }
+                            }}
+                            accept="image/*,video/*,.gif"
+                            multiple={true}
+                        />
                     </div>
                 )}
                 

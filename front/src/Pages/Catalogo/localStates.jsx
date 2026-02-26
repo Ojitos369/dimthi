@@ -47,29 +47,31 @@ export const localStates = () => {
 
     const addToPendingCart = useCallback((modelo, event) => {
         if(event) event.stopPropagation();
-        setPendingCart(prev => {
-            if(prev.find(m => m.id === modelo.id)) return prev;
-            return [...prev, modelo];
-        });
-        f.general?.notificacion?.({ title: 'Agregado', message: 'Modelo agregado a la lista de cotización', mode: 'info' });
-    }, [setPendingCart, f.general]);
+        let newCart;
+        if(pendingCart.find(m => m.id === modelo.id)) {
+            newCart = pendingCart;
+        } else {
+            newCart = [...pendingCart, { ...modelo, cantidad: 1 }];
+        }
+        setPendingCart(newCart);
+        // Abrir directamente el formulario de cotización
+        setShowRequestQuoteModal(true);
+    }, [pendingCart, setPendingCart, setShowRequestQuoteModal]);
 
     const removeFromPendingCart = useCallback((id) => {
-        setPendingCart(prev => prev.filter(m => m.id !== id));
-    }, [setPendingCart]);
+        setPendingCart(pendingCart.filter(m => m.id !== id));
+    }, [pendingCart, setPendingCart]);
 
     const updatePendingCartQuantity = useCallback((id, cantidad) => {
-        setPendingCart(prev => prev.map(m => m.id === id ? { ...m, cantidad: Math.max(1, cantidad) } : m));
-    }, [setPendingCart]);
+        setPendingCart(pendingCart.map(m => m.id === id ? { ...m, cantidad: Math.max(1, cantidad) } : m));
+    }, [pendingCart, setPendingCart]);
 
     const openRequestQuoteModal = useCallback(() => {
         if (pendingCart.length === 0) return;
-        // Inicializar cantidad si no existe
-        setPendingCart(prev => prev.map(m => ({ ...m, cantidad: m.cantidad || 1 })));
         setShowRequestQuoteModal(true);
-    }, [pendingCart, setShowRequestQuoteModal, setPendingCart]);
+    }, [pendingCart, setShowRequestQuoteModal]);
 
-    const submitPendingQuotes = useCallback((quoteData) => {
+    const submitPendingQuotes = useCallback(async (quoteData) => {
         if(pendingCart.length === 0) return;
         
         const data = {
@@ -78,10 +80,25 @@ export const localStates = () => {
             modelos_ids: pendingCart.map(m => ({ id: m.id, cantidad: m.cantidad || 1 }))
         };
         
-        f.calculadora.savePendiente(data, () => {
-            f.general?.notificacion?.({ title: 'Solicitud Enviada', message: 'Tus modelos han sido enviados para cotizar', mode: 'success' });
-            setPendingCart([]);
-            setShowRequestQuoteModal(false);
+        return new Promise((resolve) => {
+            f.calculadora.savePendiente(data, async (res) => {
+                // Subir archivos adjuntos si hay
+                const archivos = quoteData.archivos || [];
+                if (archivos.length > 0 && res.id) {
+                    for (const file of archivos) {
+                        await new Promise(r => {
+                            f.calculadora.saveArchivoPendiente({ cotizacion_pdte_id: res.id, file }, r);
+                        });
+                    }
+                }
+                
+                f.general?.notificacion?.({ title: 'Solicitud Enviada', message: 'Tus modelos han sido enviados para cotizar', mode: 'success' });
+                setPendingCart([]);
+                setShowRequestQuoteModal(false);
+                // Refresh data
+                f.calculadora.getModelos({ catalogo: true });
+                resolve();
+            });
         });
     }, [pendingCart, f.calculadora, f.general, setPendingCart, setShowRequestQuoteModal]);
 
@@ -102,58 +119,64 @@ export const localStates = () => {
         setAddModeloMsg(null);
         if (!nombre.trim()) {
             setAddModeloMsg({ text: 'El nombre es requerido', type: 'error' });
-            return;
+            return Promise.resolve();
         }
 
-        const proceedToSave = () => {
-            f.calculadora.saveModelo({ nombre, link, descripcion }, async (res) => {
-                if (res.id) {
-                    // Si hay archivos locales, subirlos
-                    if (archivos.length > 0) {
-                        setAddModeloMsg({ text: 'Guardando modelo y subiendo archivos...', type: 'info' });
-                        for (const file of archivos) {
-                            await new Promise(resolve => {
-                                f.calculadora.saveModeloArchivo({ modelo_id: res.id, file }, resolve);
-                            });
+        return new Promise((resolve) => {
+            const proceedToSave = () => {
+                f.calculadora.saveModelo({ nombre, link, descripcion }, async (res) => {
+                    if (res.id) {
+                        // Si hay archivos locales, subirlos
+                        if (archivos.length > 0) {
+                            setAddModeloMsg({ text: 'Guardando modelo y subiendo archivos...', type: 'info' });
+                            for (const file of archivos) {
+                                await new Promise(r => {
+                                    f.calculadora.saveModeloArchivo({ modelo_id: res.id, file }, r);
+                                });
+                            }
                         }
-                    }
 
-                    // Si hay imágenes extraídas por URL, descargarlas en el servidor
-                    if (imagenesExtraidas.length > 0) {
-                        setAddModeloMsg({ text: 'Descargando imágenes extraídas...', type: 'info' });
-                        for (const imgUrl of imagenesExtraidas) {
-                            await new Promise(resolve => {
-                                f.calculadora.downloadModeloArchivoFromUrl(res.id, imgUrl, resolve);
-                            });
+                        // Si hay imágenes extraídas por URL, solo guardamos la referencia al link
+                        if (imagenesExtraidas.length > 0) {
+                            setAddModeloMsg({ text: 'Guardando enlaces de imágenes extraídas...', type: 'info' });
+                            for (const imgUrl of imagenesExtraidas) {
+                                await new Promise(r => {
+                                    f.calculadora.saveModeloArchivoLink(res.id, imgUrl, r);
+                                });
+                            }
                         }
-                    }
 
-                    if (link) {
-                        setAddModeloMsg({ text: 'Modelo agregado al catálogo como público y pendiente de cotizar.', type: 'success' });
-                    } else {
-                        setAddModeloMsg({ text: `Modelo agregado. Su código privado es: ${res.id.split('-')[0]}`, type: 'success' });
-                    }
-                    setTimeout(() => {
-                        setShowAddModal(false);
-                        setAddModeloMsg(null);
+                        if (link) {
+                            setAddModeloMsg({ text: 'Modelo agregado al catálogo como público y pendiente de cotizar.', type: 'success' });
+                        } else {
+                            setAddModeloMsg({ text: `Modelo agregado. Su código privado es: ${res.id.split('-')[0]}`, type: 'success' });
+                        }
+                        
                         f.calculadora.getModelos({ catalogo: true });
-                    }, 4000);
-                }
-            });
-        };
+                        setTimeout(() => {
+                            setShowAddModal(false);
+                            setAddModeloMsg(null);
+                            resolve();
+                        }, 2000);
+                    } else {
+                        resolve();
+                    }
+                });
+            };
 
-        if (link && link.trim() !== '') {
-            f.calculadora.checkModelLinkExists(link, (res) => {
-                if (res.exists) {
-                    setAddModeloMsg({ text: `Este link ya existe en el modelo: ${res.nombre}`, type: 'error' });
-                } else {
-                    proceedToSave();
-                }
-            });
-        } else {
-            proceedToSave();
-        }
-
+            if (link && link.trim() !== '') {
+                f.calculadora.checkModelLinkExists(link, (res) => {
+                    if (res.exists) {
+                        setAddModeloMsg({ text: `Este link ya existe en el modelo: ${res.nombre}`, type: 'error' });
+                        resolve();
+                    } else {
+                        proceedToSave();
+                    }
+                });
+            } else {
+                proceedToSave();
+            }
+        });
     }, [f.calculadora, setAddModeloMsg, setShowAddModal]);
 
     return {

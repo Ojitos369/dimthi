@@ -178,3 +178,13 @@ CREATE TABLE cotizacion_modelos_pendientes (
 
 
 -- -------------------   NUEVOS CAMBIOS AGREGAR DEBAJO   -------------------
+
+ALTER TABLE filamentos ALTER COLUMN link_compra TYPE TEXT;
+ALTER TABLE resinas ALTER COLUMN link_compra TYPE TEXT;
+
+CREATE TABLE IF NOT EXISTS archivos_cotizaciones_pendientes (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    cotizacion_pdte_id uuid REFERENCES cotizaciones_pendientes(id) ON DELETE CASCADE,
+    archivo_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

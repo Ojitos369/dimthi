@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FileDropZone } from '../../../Components/FileDropZone';
 
 export const AddModeloModal = ({ ls }) => {
     const { style, showAddModal, setShowAddModal, addModeloHandler, addModeloMsg, extractInfoHandler } = ls;
@@ -7,6 +8,8 @@ export const AddModeloModal = ({ ls }) => {
     const [descripcion, setDescripcion] = useState('');
     const [archivos, setArchivos] = useState([]);
     const [imagenesExtraidas, setImagenesExtraidas] = useState([]);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isExtracting, setIsExtracting] = useState(false);
     
     // Reset form when modal opens
     useEffect(() => {
@@ -16,34 +19,39 @@ export const AddModeloModal = ({ ls }) => {
             setDescripcion('');
             setArchivos([]);
             setImagenesExtraidas([]);
+            setIsSaving(false);
+            setIsExtracting(false);
         }
     }, [showAddModal]);
 
     if (!showAddModal) return null;
 
-    const handleSave = () => {
-        addModeloHandler({ nombre, link, archivos, descripcion, imagenesExtraidas });
-    };
-
-    const handleFileChange = (e) => {
-        setArchivos(Array.from(e.target.files));
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await addModeloHandler({ nombre, link, archivos, descripcion, imagenesExtraidas });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleExtract = () => {
         if (!link) return;
+        setIsExtracting(true);
         extractInfoHandler(link, (res) => {
             if (res.nombre) setNombre(res.nombre);
             if (res.descripcion) setDescripcion(res.descripcion);
             if (res.imagenes) setImagenesExtraidas(res.imagenes);
+            setIsExtracting(false);
         });
     };
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowAddModal(false)}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => !isSaving && setShowAddModal(false)}>
             <div style={{ background: '#1e1b4b', padding: '0', borderRadius: '12px', width: '90%', maxWidth: '450px', color: 'white', overflow: 'hidden', border: '1px solid #312e81', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()}>
                 <div style={{ padding: '20px', borderBottom: '1px solid #312e81', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 600 }}>Añadir Nuevo Modelo</h3>
-                    <button style={{ background: 'transparent', border: 'none', color: '#a5b4fc', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowAddModal(false)}>×</button>
+                    <button style={{ background: 'transparent', border: 'none', color: '#a5b4fc', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => !isSaving && setShowAddModal(false)}>×</button>
                 </div>
                 <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '70vh', overflowY: 'auto' }}>
                     {addModeloMsg && (
@@ -61,14 +69,22 @@ export const AddModeloModal = ({ ls }) => {
                                 value={link} 
                                 onChange={e => setLink(e.target.value)} 
                                 placeholder="https://makerworld.com/..."
+                                disabled={isSaving}
                             />
                             <button 
                                 onClick={handleExtract}
-                                style={{ padding: '0 12px', background: '#4f46e5', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '0.85rem' }}
-                                disabled={!link}
+                                style={{ 
+                                    padding: '0 12px', background: isExtracting ? '#555' : '#4f46e5', 
+                                    border: 'none', borderRadius: '6px', color: 'white', 
+                                    cursor: (!link || isExtracting) ? 'not-allowed' : 'pointer', 
+                                    fontSize: '0.85rem',
+                                    display: 'flex', alignItems: 'center', gap: '6px'
+                                }}
+                                disabled={!link || isExtracting || isSaving}
                                 title="Extraer información del link"
                             >
-                                Extraer
+                                {isExtracting && <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />}
+                                {isExtracting ? 'Extrayendo...' : 'Extraer'}
                             </button>
                         </div>
                     </div>
@@ -81,6 +97,7 @@ export const AddModeloModal = ({ ls }) => {
                             value={nombre} 
                             onChange={e => setNombre(e.target.value)} 
                             placeholder="Ej. Figura de Dragón"
+                            disabled={isSaving}
                         />
                     </div>
 
@@ -91,17 +108,17 @@ export const AddModeloModal = ({ ls }) => {
                             value={descripcion} 
                             onChange={e => setDescripcion(e.target.value)} 
                             placeholder="Breve descripción..."
+                            disabled={isSaving}
                         />
                     </div>
 
                     <div>
                         <label style={{ display: 'block', marginBottom: '8px', color: '#a5b4fc', fontSize: '0.9rem' }}>Archivos locales</label>
-                        <input 
-                            type="file" 
-                            multiple
-                            accept="image/*,.stl,.obj"
-                            style={{ width: '100%', color: '#a5b4fc', fontSize: '0.9rem' }}
-                            onChange={handleFileChange}
+                        <FileDropZone 
+                            files={archivos}
+                            setFiles={setArchivos}
+                            accept="image/*,.stl,.obj,.3mf"
+                            multiple={true}
                         />
                     </div>
 
@@ -117,10 +134,28 @@ export const AddModeloModal = ({ ls }) => {
                     )}
                 </div>
                 <div style={{ padding: '20px', borderTop: '1px solid #312e81', display: 'flex', justifyContent: 'flex-end', gap: '10px', background: 'rgba(0,0,0,0.2)' }}>
-                    <button style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #4f46e5', background: 'transparent', color: '#a5b4fc', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setShowAddModal(false)}>Cancelar</button>
-                    <button style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', background: '#4f46e5', color: 'white', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }} onClick={handleSave}>Añadir</button>
+                    <button 
+                        style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #4f46e5', background: 'transparent', color: '#a5b4fc', cursor: 'pointer', transition: 'all 0.2s' }} 
+                        onClick={() => setShowAddModal(false)}
+                        disabled={isSaving}
+                    >Cancelar</button>
+                    <button 
+                        style={{ 
+                            padding: '8px 16px', borderRadius: '6px', border: 'none', 
+                            background: isSaving ? '#555' : '#4f46e5', 
+                            color: 'white', fontWeight: 500, cursor: isSaving ? 'not-allowed' : 'pointer', 
+                            transition: 'all 0.2s',
+                            display: 'flex', alignItems: 'center', gap: '6px'
+                        }} 
+                        onClick={handleSave}
+                        disabled={isSaving}
+                    >
+                        {isSaving && <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />}
+                        {isSaving ? 'Guardando...' : 'Añadir'}
+                    </button>
                 </div>
             </div>
+            {(isSaving || isExtracting) && <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>}
         </div>
     );
 };

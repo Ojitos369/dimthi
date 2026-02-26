@@ -1,0 +1,135 @@
+.dropZone {
+    border: 2px dashed #444;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.02);
+    position: relative;
+    outline: none;
+
+    &:hover {
+        border-color: #7c3aed;
+        background: rgba(124, 58, 237, 0.05);
+    }
+
+    &:focus-visible {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
+    }
+}
+
+.dropZoneDragging {
+    border-color: #7c3aed;
+    background: rgba(124, 58, 237, 0.1);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+    transform: scale(1.01);
+}
+
+.dropIcon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.dropZone:hover .dropIcon,
+.dropZoneDragging .dropIcon {
+    opacity: 1;
+}
+
+.dropText {
+    color: #888;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.dropHint {
+    color: #666;
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+.dropAccent {
+    color: #a78bfa;
+    font-weight: 500;
+}
+
+.fileList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.fileItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 10px;
+    transition: background 0.2s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.07);
+    }
+}
+
+.fileThumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #222;
+    flex-shrink: 0;
+}
+
+.fileThumbPlaceholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.fileName {
+    flex: 1;
+    font-size: 0.85rem;
+    color: #ccc;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fileSize {
+    font-size: 0.75rem;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.fileRemove {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: background 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+        background: rgba(239, 68, 68, 0.15);
+    }
+}
+
+.hiddenInput {
+    display: none;
+}

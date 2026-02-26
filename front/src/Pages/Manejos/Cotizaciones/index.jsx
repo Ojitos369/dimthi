@@ -4,6 +4,7 @@ import { DataTable } from './components/DataTable';
 import { FormCard } from './components/FormCard';
 import { DetailModal } from './components/DetailModal';
 import { PendientesTable } from './components/PendientesTable';
+import { DetailPendienteModal } from './components/DetailPendienteModal';
 
 export const ManejoCotizaciones = () => {
     const ls = localStates();
@@ -41,6 +42,7 @@ export const ManejoCotizaciones = () => {
             )}
             
             {ls.detailId && <DetailModal ls={ls} />}
+            {ls.detailPendienteId && <DetailPendienteModal ls={ls} />}
         </div>
     );
 };

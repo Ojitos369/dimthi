@@ -15,6 +15,15 @@ export const DetailModal = ({ ls }) => {
     React.useEffect(() => {
         setCurrentIndex(0);
     }, [modeloActual?.id]);
+
+    const sortedCotizaciones = React.useMemo(() => {
+        if (!modeloActual?.cotizaciones) return [];
+        return [...modeloActual.cotizaciones].sort((a, b) => {
+            const priceA = parseFloat(a.precio_final || a.costo_total || 0);
+            const priceB = parseFloat(b.precio_final || b.costo_total || 0);
+            return priceA - priceB;
+        });
+    }, [modeloActual?.cotizaciones]);
     
     if (!selectedModeloId || !modeloActual) return null;
 
@@ -49,15 +58,6 @@ export const DetailModal = ({ ls }) => {
         txt.innerHTML = html;
         return txt.value;
     };
-
-    const sortedCotizaciones = React.useMemo(() => {
-        if (!modeloActual?.cotizaciones) return [];
-        return [...modeloActual.cotizaciones].sort((a, b) => {
-            const priceA = parseFloat(a.precio_final || a.costo_total || 0);
-            const priceB = parseFloat(b.precio_final || b.costo_total || 0);
-            return priceA - priceB;
-        });
-    }, [modeloActual?.cotizaciones]);
 
     return (
         <div className={style.detailOverlay} onClick={closeDetail}>
@@ -125,7 +125,7 @@ export const DetailModal = ({ ls }) => {
                                 }}
                                 disabled={!!pendingCart.find(x => x.id === modeloActual.id)}
                             >
-                                {pendingCart.find(x => x.id === modeloActual.id) ? '✔ En carrito de cotización' : 'Solicitar Cotización'}
+                                {pendingCart.find(x => x.id === modeloActual.id) ? '✔ En cotización' : 'Solicitar Cotización'}
                             </button>
                         )}
                     </div>

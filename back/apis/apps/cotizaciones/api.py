@@ -9,7 +9,12 @@ class GetCotizaciones(NoSession, BaseApi):
         SELECT c.*,
             pc.nombre as perfil_nombre,
             (
-                SELECT json_agg(json_build_object('id', m.id, 'nombre', m.nombre, 'link', m.link))
+                SELECT json_agg(json_build_object(
+                    'id', m.id, 
+                    'nombre', m.nombre, 
+                    'link', m.link,
+                    'archivos', (SELECT json_agg(json_build_object('id', am.id, 'archivo_url', am.archivo_url)) FROM (SELECT id, archivo_url FROM archivos_modelos am2 WHERE am2.modelo_id = m.id ORDER BY am2.created_at DESC LIMIT 5) am)
+                ))
                 FROM cotizacion_modelos cm
                 JOIN modelos m ON cm.modelo_id = m.id
                 WHERE cm.cotizacion_id = c.id

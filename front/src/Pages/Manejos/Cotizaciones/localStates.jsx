@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useCallback } from 'react';
+import Swal from 'sweetalert2';
 import { useStates, createState } from '../../../Hooks/useStates';
 import style from '../shared/styles/manejo.module.scss';
 
@@ -28,6 +29,10 @@ export const localStates = () => {
     const openDetail = useCallback((id) => { setDetailId(id); }, []);
     const closeDetail = useCallback(() => { setDetailId(null); }, []);
 
+    const [detailPendienteId, setDetailPendienteId] = createState(['mjCotizaciones', 'detailPendienteId'], null);
+    const openDetailPendiente = useCallback((id) => { setDetailPendienteId(id); }, []);
+    const closeDetailPendiente = useCallback(() => { setDetailPendienteId(null); }, []);
+
     const handleSave = useCallback(() => {
         // Obtenemos todos los datos actuales de la cotización para no sobreescribir con null
         const current = cotizaciones.find(c => c.id === editId);
@@ -54,9 +59,22 @@ export const localStates = () => {
     }, [nombre, comentarios, precioFinal, editId, cotizaciones, f.calculadora, cancel]);
 
     const handleDelete = useCallback((id) => {
-        if (window.confirm("¿Seguro que deseas eliminar esta cotización? Esto afectará al historial de compras ligadas.")) {
-            f.calculadora.deleteCotizacion(id);
-        }
+        Swal.fire({
+            title: '¿Eliminar cotización?',
+            text: 'Esto afectará al historial de compras ligadas.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#666',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#1a1a1a',
+            color: '#e0e0e0',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                f.calculadora.deleteCotizacion(id);
+            }
+        });
     }, [f.calculadora]);
 
     return { 
@@ -64,6 +82,7 @@ export const localStates = () => {
         showForm, editId, nombre, setNombre, comentarios, setComentarios, precioFinal, setPrecioFinal,
         openEdit, cancel, handleSave,
         detailId, openDetail, closeDetail,
+        detailPendienteId, openDetailPendiente, closeDetailPendiente,
         activeTab, setActiveTab, resolvePendiente: f.calculadora.resolvePendiente
     };
 };

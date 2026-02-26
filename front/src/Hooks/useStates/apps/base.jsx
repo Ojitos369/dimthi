@@ -11,6 +11,34 @@ const miAxios = axios.create({
     baseURL: link,
 });
 
+// Interceptor para loader global
+let activeRequests = 0;
+const updateLoader = (increment) => {
+    activeRequests += increment;
+    if (activeRequests > 0) {
+        window.dispatchEvent(new Event('show_global_loader'));
+    } else {
+        activeRequests = 0;
+        window.dispatchEvent(new Event('hide_global_loader'));
+    }
+};
+
+miAxios.interceptors.request.use(config => {
+    updateLoader(1);
+    return config;
+}, error => {
+    updateLoader(-1);
+    return Promise.reject(error);
+});
+
+miAxios.interceptors.response.use(response => {
+    updateLoader(-1);
+    return response;
+}, error => {
+    updateLoader(-1);
+    return Promise.reject(error);
+});
+
 const pjid = "reapi";
 
 import { app as appMod } from "./app";
