@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const PendingCartWidget = ({ ls }) => {
-    const { pendingCart, removeFromPendingCart, submitPendingQuotes, style } = ls;
+    const { pendingCart, removeFromPendingCart, openRequestQuoteModal, style } = ls;
 
     if (pendingCart.length === 0) return null;
 
@@ -43,7 +43,7 @@ export const PendingCartWidget = ({ ls }) => {
             </div>
 
             <button 
-                onClick={submitPendingQuotes}
+                onClick={openRequestQuoteModal}
                 style={{
                     background: '#7c3aed',
                     color: 'white',

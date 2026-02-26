@@ -4,6 +4,7 @@ import { ModelosGrid } from './components/ModelosGrid';
 import { DetailModal } from './components/DetailModal';
 import { PendingCartWidget } from './components/PendingCartWidget';
 import { AddModeloModal } from './components/AddModeloModal';
+import { RequestQuoteModal } from './components/RequestQuoteModal';
 
 export const Catalogo = () => {
     const ls = localStates();
@@ -16,6 +17,7 @@ export const Catalogo = () => {
             <DetailModal ls={ls} />
             <PendingCartWidget ls={ls} />
             <AddModeloModal ls={ls} />
+            <RequestQuoteModal ls={ls} />
         </div>
     );
 };

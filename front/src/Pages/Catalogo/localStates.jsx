@@ -19,6 +19,10 @@ export const localStates = () => {
     // Cart for pending quotes
     const [pendingCart, setPendingCart] = createState(['catalogo', 'pendingCart'], []);
 
+    // Request Quote Modal
+    const [showRequestQuoteModal, setShowRequestQuoteModal] = createState(['catalogo', 'showRequestQuoteModal'], false);
+    const [requestQuoteMsg, setRequestQuoteMsg] = createState(['catalogo', 'requestQuoteMsg'], null);
+
     const filteredModelos = useMemo(() => {
         // En backend ya se filtró por código si se escribió
         // Si no, acá seguimos filtrando por nombre/desc normal a los publicos.
@@ -54,22 +58,47 @@ export const localStates = () => {
         setPendingCart(prev => prev.filter(m => m.id !== id));
     }, [setPendingCart]);
 
-    const submitPendingQuotes = useCallback(() => {
+    const updatePendingCartQuantity = useCallback((id, cantidad) => {
+        setPendingCart(prev => prev.map(m => m.id === id ? { ...m, cantidad: Math.max(1, cantidad) } : m));
+    }, [setPendingCart]);
+
+    const openRequestQuoteModal = useCallback(() => {
+        if (pendingCart.length === 0) return;
+        // Inicializar cantidad si no existe
+        setPendingCart(prev => prev.map(m => ({ ...m, cantidad: m.cantidad || 1 })));
+        setShowRequestQuoteModal(true);
+    }, [pendingCart, setShowRequestQuoteModal, setPendingCart]);
+
+    const submitPendingQuotes = useCallback((quoteData) => {
         if(pendingCart.length === 0) return;
         
         const data = {
-            nombre: 'Asignación Web',
-            comentarios: '',
-            modelos_ids: pendingCart.map(m => ({ id: m.id, cantidad: 1 }))
+            nombre: quoteData.nombre || 'Asignación Web',
+            comentarios: quoteData.comentarios || '',
+            modelos_ids: pendingCart.map(m => ({ id: m.id, cantidad: m.cantidad || 1 }))
         };
         
         f.calculadora.savePendiente(data, () => {
             f.general?.notificacion?.({ title: 'Solicitud Enviada', message: 'Tus modelos han sido enviados para cotizar', mode: 'success' });
             setPendingCart([]);
+            setShowRequestQuoteModal(false);
         });
-    }, [pendingCart, f.calculadora, f.general, setPendingCart]);
+    }, [pendingCart, f.calculadora, f.general, setPendingCart, setShowRequestQuoteModal]);
 
-    const addModeloHandler = useCallback(async ({ nombre, link }) => {
+    const extractInfoHandler = useCallback((url, callback) => {
+        if (!url) return;
+        setAddModeloMsg({ text: 'Extrayendo información...', type: 'info' });
+        f.calculadora.extractMakerworld(url, (res) => {
+            if (res.nombre) {
+                setAddModeloMsg({ text: 'Información extraída correctamente.', type: 'success' });
+                if (callback) callback(res);
+            } else {
+                setAddModeloMsg({ text: 'No se pudo extraer información de este link.', type: 'error' });
+            }
+        });
+    }, [f.calculadora, setAddModeloMsg]);
+
+    const addModeloHandler = useCallback(async ({ nombre, link, archivos = [], descripcion = '', imagenesExtraidas = [] }) => {
         setAddModeloMsg(null);
         if (!nombre.trim()) {
             setAddModeloMsg({ text: 'El nombre es requerido', type: 'error' });
@@ -77,8 +106,28 @@ export const localStates = () => {
         }
 
         const proceedToSave = () => {
-            f.calculadora.saveModelo({ nombre, link }, (res) => {
+            f.calculadora.saveModelo({ nombre, link, descripcion }, async (res) => {
                 if (res.id) {
+                    // Si hay archivos locales, subirlos
+                    if (archivos.length > 0) {
+                        setAddModeloMsg({ text: 'Guardando modelo y subiendo archivos...', type: 'info' });
+                        for (const file of archivos) {
+                            await new Promise(resolve => {
+                                f.calculadora.saveModeloArchivo({ modelo_id: res.id, file }, resolve);
+                            });
+                        }
+                    }
+
+                    // Si hay imágenes extraídas por URL, descargarlas en el servidor
+                    if (imagenesExtraidas.length > 0) {
+                        setAddModeloMsg({ text: 'Descargando imágenes extraídas...', type: 'info' });
+                        for (const imgUrl of imagenesExtraidas) {
+                            await new Promise(resolve => {
+                                f.calculadora.downloadModeloArchivoFromUrl(res.id, imgUrl, resolve);
+                            });
+                        }
+                    }
+
                     if (link) {
                         setAddModeloMsg({ text: 'Modelo agregado al catálogo como público y pendiente de cotizar.', type: 'success' });
                     } else {
@@ -87,7 +136,7 @@ export const localStates = () => {
                     setTimeout(() => {
                         setShowAddModal(false);
                         setAddModeloMsg(null);
-                        f.calculadora.getModelos();
+                        f.calculadora.getModelos({ catalogo: true });
                     }, 4000);
                 }
             });
@@ -113,8 +162,10 @@ export const localStates = () => {
         searchTerm, setSearchTerm,
         selectedModeloId, modeloActual,
         selectModelo, closeDetail,
-        pendingCart, addToPendingCart, removeFromPendingCart, submitPendingQuotes,
-        showAddModal, setShowAddModal, addModeloHandler, addModeloMsg
+        pendingCart, addToPendingCart, removeFromPendingCart, updatePendingCartQuantity, 
+        submitPendingQuotes, openRequestQuoteModal,
+        showAddModal, setShowAddModal, addModeloHandler, addModeloMsg, extractInfoHandler,
+        showRequestQuoteModal, setShowRequestQuoteModal, requestQuoteMsg
     };
 };
 

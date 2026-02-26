@@ -50,6 +50,15 @@ export const DetailModal = ({ ls }) => {
         return txt.value;
     };
 
+    const sortedCotizaciones = React.useMemo(() => {
+        if (!modeloActual?.cotizaciones) return [];
+        return [...modeloActual.cotizaciones].sort((a, b) => {
+            const priceA = parseFloat(a.precio_final || a.costo_total || 0);
+            const priceB = parseFloat(b.precio_final || b.costo_total || 0);
+            return priceA - priceB;
+        });
+    }, [modeloActual?.cotizaciones]);
+
     return (
         <div className={style.detailOverlay} onClick={closeDetail}>
             <div className={style.detailCard} onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
@@ -121,11 +130,11 @@ export const DetailModal = ({ ls }) => {
                         )}
                     </div>
 
-                    {modeloActual.cotizaciones && modeloActual.cotizaciones.length > 0 && (
+                    {sortedCotizaciones.length > 0 && (
                         <div style={{ marginTop: '1.5rem', borderTop: '1px solid #333', paddingTop: '1rem' }}>
-                            <h3 style={{ margin: '0 0 1rem 0', color: '#fff', fontSize: '1.1rem' }}>Cotizaciones ({modeloActual.cotizaciones.length})</h3>
+                            <h3 style={{ margin: '0 0 1rem 0', color: '#fff', fontSize: '1.1rem' }}>Cotizaciones ({sortedCotizaciones.length})</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                {modeloActual.cotizaciones.map(c => {
+                                {sortedCotizaciones.map(c => {
                                     let snap = null;
                                     try { if (c.snapshot_data) snap = JSON.parse(c.snapshot_data); } catch(e) {}
                                     
@@ -136,12 +145,22 @@ export const DetailModal = ({ ls }) => {
                                                 <span style={{ color: '#4ade80', fontWeight: 'bold' }}>${parseFloat(c.precio_final||c.costo_total||0).toFixed(2)}</span>
                                             </div>
                                             
-                                            {logged && snap ? (
+                                            {c.comentarios && (
+                                                <div style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: '8px', fontStyle: 'italic' }}>
+                                                    "{c.comentarios}"
+                                                </div>
+                                            )}
+                                            
+                                            {snap ? (
                                                 <div style={{ fontSize: '0.8rem', color: '#aaa', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginTop: '4px', borderTop: '1px dashed #444', paddingTop: '4px' }}>
                                                     <div><span style={{color: '#777'}}>Mat:</span> {snap.materiaL_type}</div>
                                                     <div><span style={{color: '#777'}}>Tiempo:</span> {snap.time_h}h {snap.time_m}m</div>
-                                                    <div><span style={{color: '#777'}}>Costo Real:</span> ${parseFloat((snap.results?.price||0)-(snap.results?.profit||0)).toFixed(2)}</div>
-                                                    <div><span style={{color: '#777'}}>Utilidad:</span> ${parseFloat(snap.results?.profit||0).toFixed(2)}</div>
+                                                    {logged && (
+                                                        <>
+                                                            <div><span style={{color: '#777'}}>Costo Real:</span> ${parseFloat((snap.results?.price||0)-(snap.results?.profit||0)).toFixed(2)}</div>
+                                                            <div><span style={{color: '#777'}}>Utilidad:</span> ${parseFloat(snap.results?.profit||0).toFixed(2)}</div>
+                                                        </>
+                                                    )}
                                                 </div>
                                             ) : null}
                                         </div>
