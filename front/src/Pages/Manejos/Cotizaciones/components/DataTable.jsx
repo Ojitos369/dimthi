@@ -20,8 +20,8 @@ export const DataTable = ({ ls }) => {
                         {c.modelos?.map(m=>m.nombre).join(', ') || 'Sin Modelo'} / {c.tipo_material}
                     </span>
                     <span className={style.truncate} title={c.comentarios}>{c.comentarios || '—'}</span>
-                    <span className={style.truncate}>${parseFloat(c.costo_material||0).toFixed(2)}</span>
-                    <span className={style.truncate}><b>${parseFloat(c.precio_final||c.precio_venta||0).toFixed(2)}</b></span>
+                    <span className={style.truncate}>${parseFloat(c.consto_material||0).toFixed(2)}</span>
+                    <span className={style.truncate}><b>${parseFloat(c.precio_final||c.costo_total||0).toFixed(2)}</b></span>
                     <div className={style.tableActions}>
                         <button className={style.btnEdit} onClick={() => openDetail(c.id)} title="Ver Detalles">ℹ️</button>
                         <button className={style.btnEdit} onClick={() => openEdit(c)} title="Editar">✏️</button>

@@ -12,12 +12,16 @@ export const localStates = () => {
     const [nombre, setNombre] = createState(['mjModelos', 'nombre'], '');
     const [descripcion, setDescripcion] = createState(['mjModelos', 'descripcion'], '');
     const [link, setLink] = createState(['mjModelos', 'link'], '');
+    const [estatusPrivacidad, setEstatusPrivacidad] = createState(['mjModelos', 'estatusPrivacidad'], 'publico');
+    const [estatusValidacion, setEstatusValidacion] = createState(['mjModelos', 'estatusValidacion'], 'validado');
     
     const [archivos, setArchivos] = createState(['mjModelos', 'archivos'], []);
     const [isExtracting, setIsExtracting] = createState(['mjModelos', 'isExtracting'], false);
 
     const openNew = useCallback(() => { 
-        setEditId(null); setNombre(''); setDescripcion(''); setLink(''); setArchivos([]); setShowForm(true); 
+        setEditId(crypto.randomUUID()); setNombre(''); setDescripcion(''); setLink(''); 
+        setEstatusPrivacidad('publico'); setEstatusValidacion('validado');
+        setArchivos([]); setShowForm(true); 
     }, []);
 
     const openEdit = useCallback((item) => { 
@@ -26,6 +30,8 @@ export const localStates = () => {
             setNombre(fullData.nombre || ''); 
             setDescripcion(fullData.descripcion || ''); 
             setLink(fullData.link || ''); 
+            setEstatusPrivacidad(fullData.estatus_privacidad || 'publico');
+            setEstatusValidacion(fullData.estatus_validacion || 'validado');
             setArchivos(fullData.archivos || []);
             setShowForm(true); 
         });
@@ -35,10 +41,10 @@ export const localStates = () => {
 
     const handleSave = useCallback(() => {
         if (!nombre.trim()) return;
-        const data = { nombre, descripcion, link };
+        const data = { nombre, descripcion, link, estatus_privacidad: estatusPrivacidad, estatus_validacion: estatusValidacion };
         if (editId) data.id = editId;
         f.calculadora.saveModelo(data, () => cancel());
-    }, [nombre, descripcion, link, editId, f.calculadora, cancel]);
+    }, [nombre, descripcion, link, estatusPrivacidad, estatusValidacion, editId, f.calculadora, cancel]);
 
     const handleDelete = useCallback((id) => f.calculadora.deleteModelo(id), [f.calculadora]);
 
@@ -79,10 +85,7 @@ export const localStates = () => {
     }, [link, editId, f.calculadora, f.general, setNombre, setDescripcion]);
     
     const handleFileUpload = useCallback((file) => {
-        if (!editId) {
-            f.general.notificacion({ title: 'Atención', message: 'Primero guarda el modelo antes de subir archivos.', mode: 'warning' });
-            return;
-        }
+        if (!editId) return;
         if(!file) return;
         
         const formData = new FormData();
@@ -111,13 +114,51 @@ export const localStates = () => {
         });
     }, [editId, f.calculadora]);
 
+    const handleAddByLinkPrompt = useCallback(() => {
+        const linkStr = prompt("Pega el link del modelo (Makerworld/Printables/etc.):");
+        if (!linkStr) return;
+        
+        const newId = crypto.randomUUID();
+        setIsExtracting(true);
+        f.general.notificacion({ title: 'Procesando', message: 'Extrayendo datos y guardando modelo...', mode: 'info' });
+        
+        f.calculadora.extractMakerworld(linkStr, (data) => {
+            const formData = {
+                id: newId,
+                nombre: data.nombre,
+                descripcion: data.descripcion,
+                link: linkStr
+            };
+            f.calculadora.saveModelo(formData, (saveRes) => {
+                // Now that the model is created, we can safely create the files.
+                if (data.imagenes && data.imagenes.length > 0) {
+                    let promises = data.imagenes.map(url => {
+                        return new Promise((resolve) => {
+                            f.calculadora.saveModeloArchivoLink(newId, url, () => resolve());
+                        });
+                    });
+                    Promise.all(promises).then(() => {
+                        f.calculadora.getModelos();
+                        setIsExtracting(false);
+                        f.general.notificacion({ title: 'Éxito', message: 'Modelo creado con éxito y sus imágenes', mode: 'success' });
+                    });
+                } else {
+                    f.calculadora.getModelos();
+                    setIsExtracting(false);
+                    f.general.notificacion({ title: 'Éxito', message: 'Modelo creado con éxito', mode: 'success' });
+                }
+            });
+        });
+    }, [f.calculadora, f.general]);
+
     return { 
         style, modelos, showForm, editId, nombre, setNombre, 
         descripcion, setDescripcion, link, setLink, archivos,
+        estatusPrivacidad, setEstatusPrivacidad, estatusValidacion, setEstatusValidacion,
         isExtracting,
         openNew, openEdit, cancel, handleSave, handleDelete,
         handleFileChange, handleFileUpload, handleDeleteArchivo,
-        handleExtractMakerworld
+        handleExtractMakerworld, handleAddByLinkPrompt
     };
 };
 

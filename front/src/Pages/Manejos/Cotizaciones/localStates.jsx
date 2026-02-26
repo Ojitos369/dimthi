@@ -5,7 +5,9 @@ import style from '../shared/styles/manejo.module.scss';
 export const localStates = () => {
     const { s, f } = useStates();
     const cotizaciones = useMemo(() => s.calculadora?.cotizaciones || [], [s.calculadora?.cotizaciones]);
+    const pendientes = useMemo(() => s.calculadora?.pendientes || [], [s.calculadora?.pendientes]);
 
+    const [activeTab, setActiveTab] = createState(['mjCotizaciones', 'activeTab'], 'pendientes'); // 'historial' or 'pendientes'
     const [showForm, setShowForm] = createState(['mjCotizaciones', 'showForm'], false);
     const [editId, setEditId] = createState(['mjCotizaciones', 'editId'], null);
     const [detailId, setDetailId] = createState(['mjCotizaciones', 'detailId'], null);
@@ -17,7 +19,7 @@ export const localStates = () => {
         setEditId(item.id); 
         setNombre(item.nombre || ''); 
         setComentarios(item.comentarios || ''); 
-        setPrecioFinal(parseFloat(item.precio_final || item.precio_venta || 0)); 
+        setPrecioFinal(parseFloat(item.precio_final || item.costo_total || 0)); 
         setShowForm(true); 
     }, []);
 
@@ -58,10 +60,11 @@ export const localStates = () => {
     }, [f.calculadora]);
 
     return { 
-        style, cotizaciones, handleDelete,
+        style, cotizaciones, pendientes, handleDelete,
         showForm, editId, nombre, setNombre, comentarios, setComentarios, precioFinal, setPrecioFinal,
         openEdit, cancel, handleSave,
-        detailId, openDetail, closeDetail
+        detailId, openDetail, closeDetail,
+        activeTab, setActiveTab, resolvePendiente: f.calculadora.resolvePendiente
     };
 };
 
@@ -72,5 +75,6 @@ export const localEffects = () => {
         f.u1('page', 'actualMenu', 'manejos');
         f.u1('page', 'title', 'Manejo de Cotizaciones');
         f.calculadora.getCotizaciones();
+        f.calculadora.getPendientes();
     }, []);
 };

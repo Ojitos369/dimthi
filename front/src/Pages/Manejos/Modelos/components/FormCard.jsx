@@ -5,6 +5,7 @@ export const FormCard = ({ ls }) => {
         style, editId, nombre, setNombre,
         descripcion, setDescripcion, link, setLink,
         archivos, cancel, handleSave, handleFileChange, handleFileUpload, handleDeleteArchivo,
+        estatusPrivacidad, setEstatusPrivacidad, estatusValidacion, setEstatusValidacion,
         isExtracting, handleExtractMakerworld
     } = ls;
 
@@ -46,6 +47,22 @@ export const FormCard = ({ ls }) => {
                                 </button>
                             )}
                         </div>
+                    </div>
+                </div>
+                <div className={style.formRow}>
+                    <div style={{flex: 1}}>
+                        <div className={style.formLabel}>Privacidad</div>
+                        <select className={style.formInput} value={estatusPrivacidad} onChange={e => setEstatusPrivacidad(e.target.value)} style={{ padding: '0.5rem', width: '100%' }}>
+                            <option value="publico">Público</option>
+                            <option value="privado">Privado</option>
+                        </select>
+                    </div>
+                    <div style={{flex: 1}}>
+                        <div className={style.formLabel}>Validación</div>
+                        <select className={style.formInput} value={estatusValidacion} onChange={e => setEstatusValidacion(e.target.value)} style={{ padding: '0.5rem', width: '100%' }}>
+                            <option value="validado">Validado</option>
+                            <option value="pendiente">Pendiente</option>
+                        </select>
                     </div>
                 </div>
                 <div>

@@ -7,7 +7,7 @@ const formatDate = (dateStr) => {
 };
 
 export const DetailModal = ({ ls }) => {
-    const { style, selectedModeloId, modeloActual, closeDetail, logged } = ls;
+    const { style, selectedModeloId, modeloActual, closeDetail, logged, addToPendingCart, pendingCart } = ls;
     const [currentIndex, setCurrentIndex] = useState(0);
     
     // React automatically drops states when component unmounts, but since 
@@ -96,6 +96,31 @@ export const DetailModal = ({ ls }) => {
                         <span className={style.detailValue}>{formatDate(modeloActual.created_at)}</span>
                     </div>
 
+                    <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        {modeloActual.precio_minimo > 0 ? (
+                            <div style={{ fontSize: '1.2rem', color: '#4ade80', fontWeight: 'bold' }}>
+                                Precio desde: ${parseFloat(modeloActual.precio_minimo).toFixed(2)}
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={(e) => addToPendingCart(modeloActual, e)}
+                                style={{ 
+                                    background: pendingCart.find(x => x.id === modeloActual.id) ? '#4ade80' : '#7c3aed', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    padding: '10px 20px', 
+                                    borderRadius: '6px', 
+                                    cursor: pendingCart.find(x => x.id === modeloActual.id) ? 'default' : 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '1rem'
+                                }}
+                                disabled={!!pendingCart.find(x => x.id === modeloActual.id)}
+                            >
+                                {pendingCart.find(x => x.id === modeloActual.id) ? '✔ En carrito de cotización' : 'Solicitar Cotización'}
+                            </button>
+                        )}
+                    </div>
+
                     {modeloActual.cotizaciones && modeloActual.cotizaciones.length > 0 && (
                         <div style={{ marginTop: '1.5rem', borderTop: '1px solid #333', paddingTop: '1rem' }}>
                             <h3 style={{ margin: '0 0 1rem 0', color: '#fff', fontSize: '1.1rem' }}>Cotizaciones ({modeloActual.cotizaciones.length})</h3>
@@ -108,7 +133,7 @@ export const DetailModal = ({ ls }) => {
                                         <div key={c.id} style={{ background: '#222', padding: '0.75rem', borderRadius: '4px', border: '1px solid #333' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                                 <span style={{ color: '#fff', fontWeight: 'bold' }}>{c.nombre || c.id.substring(0,8)}</span>
-                                                <span style={{ color: '#4ade80', fontWeight: 'bold' }}>${parseFloat(c.precio_final||c.precio_venta||0).toFixed(2)}</span>
+                                                <span style={{ color: '#4ade80', fontWeight: 'bold' }}>${parseFloat(c.precio_final||c.costo_total||0).toFixed(2)}</span>
                                             </div>
                                             
                                             {logged && snap ? (

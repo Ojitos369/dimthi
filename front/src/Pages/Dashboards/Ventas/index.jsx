@@ -20,7 +20,7 @@ const formatDate = (dateStr) => {
 
 export const SalesDashboard = () => {
     const ls = localStates();
-    const { processedSales, metrics, uniqueUsers, filterUser, setFilterUser, filterDateStart, setFilterDateStart, filterDateEnd, setFilterDateEnd } = ls;
+    const { processedSales, metrics, uniqueUsers, filterUser, setFilterUser, filterDateStart, setFilterDateStart, filterDateEnd, setFilterDateEnd, estatusModelos } = ls;
     localEffects();
 
     return (
@@ -42,6 +42,40 @@ export const SalesDashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                         <label style={{ fontSize: '0.75rem', color: '#888' }}>Hasta</label>
                         <input type="date" value={filterDateEnd} onChange={e => setFilterDateEnd(e.target.value)} style={{ backgroundColor: '#1e1e1e', color: '#fff', border: '1px solid #333', padding: '0.4rem', borderRadius: '4px' }} />
+                    </div>
+                </div>
+            </div>
+
+            <div style={{ padding: '1.25rem', backgroundColor: '#1e1e1e', borderRadius: '8px', border: '1px solid #333', marginBottom: '2rem' }}>
+                <div style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1rem', fontWeight: 'bold' }}>Modelos 3D (Estatus)</div>
+                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '1.25rem' }}>🌍</span> 
+                        <div>
+                            <div style={{ color: '#aaa', fontSize: '0.8rem' }}>Públicos</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{estatusModelos.publicos}</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '1.25rem' }}>🔒</span> 
+                        <div>
+                            <div style={{ color: '#aaa', fontSize: '0.8rem' }}>Privados</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{estatusModelos.privados}</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '1.25rem' }}>✅</span> 
+                        <div>
+                            <div style={{ color: '#aaa', fontSize: '0.8rem' }}>Validados</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{estatusModelos.validados}</div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '1.25rem' }}>⏱</span> 
+                        <div>
+                            <div style={{ color: '#aaa', fontSize: '0.8rem' }}>Pendientes</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: estatusModelos.pendientes > 0 ? '#f59e0b' : 'white' }}>{estatusModelos.pendientes}</div>
+                        </div>
                     </div>
                 </div>
             </div>

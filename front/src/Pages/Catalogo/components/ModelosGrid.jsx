@@ -6,7 +6,7 @@ const formatDate = (dateStr) => {
     return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
-const ModelCard = ({ m, style, selectModelo }) => {
+const ModelCard = ({ m, style, selectModelo, addToPendingCart, pendingCart }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const archivos = m.archivos || [];
     const hasArchivos = archivos.length > 0;
@@ -92,13 +92,49 @@ const ModelCard = ({ m, style, selectModelo }) => {
                         {m.num_archivos || 0} archivo{m.num_archivos !== 1 ? 's' : ''}
                     </span>
                 </div>
+                <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                    {m.precio_minimo > 0 ? (
+                        <div style={{ color: '#4ade80', fontWeight: 'bold' }}>Desde ${parseFloat(m.precio_minimo).toFixed(2)}</div>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                            <button 
+                                onClick={(e) => addToPendingCart(m, e)}
+                                style={{ 
+                                    background: pendingCart.find(x => x.id === m.id) ? '#4ade80' : '#7c3aed', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    padding: '6px 12px', 
+                                    borderRadius: '4px', 
+                                    cursor: pendingCart.find(x => x.id === m.id) ? 'default' : 'pointer',
+                                    fontSize: '0.85rem',
+                                    flex: 1
+                                }}
+                                disabled={!!pendingCart.find(x => x.id === m.id)}
+                            >
+                                {pendingCart.find(x => x.id === m.id) ? 'En Carrito' : 'Solicitar Cotización'}
+                            </button>
+                            {m.cotizaciones_pendientes > 0 && (
+                                <span style={{ 
+                                    background: '#f59e0b', 
+                                    color: 'white', 
+                                    padding: '2px 6px', 
+                                    borderRadius: '12px', 
+                                    fontSize: '0.75rem',
+                                    fontWeight: 'bold'
+                                }} title={`${m.cotizaciones_pendientes} cotizaciones pendientes para este modelo`}>
+                                    ⏱ {m.cotizaciones_pendientes}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
 };
 
 export const ModelosGrid = ({ ls }) => {
-    const { style, modelos, selectModelo } = ls;
+    const { style, modelos, selectModelo, addToPendingCart, pendingCart } = ls;
     return (
         <div className={style.modelosGrid}>
             {modelos.length === 0 && (
@@ -108,7 +144,7 @@ export const ModelosGrid = ({ ls }) => {
                 </div>
             )}
             {modelos.map(m => (
-                <ModelCard key={m.id} m={m} style={style} selectModelo={selectModelo} />
+                <ModelCard key={m.id} m={m} style={style} selectModelo={selectModelo} addToPendingCart={addToPendingCart} pendingCart={pendingCart} />
             ))}
         </div>
     );

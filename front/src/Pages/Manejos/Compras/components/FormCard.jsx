@@ -30,7 +30,7 @@ export const FormCard = ({ ls }) => {
                         onChange={setCotizacionId}
                         placeholder="Selecciona una cotización..."
                         options={cotizaciones.map(c => {
-                            let label = `ID: ${c.id.substring(0, 8)}... - ${(c.tipo_material || '').toUpperCase()} - \$${parseFloat(c.precio_final || c.precio_venta).toFixed(2)}`;
+                            let label = `ID: ${c.id.substring(0, 8)}... - ${(c.tipo_material || '').toUpperCase()} - \$${parseFloat(c.precio_final || c.costo_total).toFixed(2)}`;
                             if (c.modelos && c.modelos.length > 0) {
                                 label += ` | ${c.modelos.map(m => m.nombre).join(', ')}`;
                             } else {

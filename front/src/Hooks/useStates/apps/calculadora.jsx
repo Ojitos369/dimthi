@@ -110,10 +110,18 @@ export const calculadora = props => {
     }
 
     // ---- MODELOS ----
-    const getModelos = () => {
-        miAxios.get('apps/modelos/get_modelos/')
+    const getModelos = (params = {}) => {
+        miAxios.get('apps/modelos/get_modelos/', { params })
         .then(res => {
             u1("calculadora", "modelos", res.data.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
+    const getEstatusModelos = () => {
+        miAxios.get('apps/modelos/get_estatus_modelos')
+        .then(res => {
+            u1("calculadora", "estatusModelos", res.data.data);
         })
         .catch(err => { console.log(err); });
     }
@@ -140,6 +148,14 @@ export const calculadora = props => {
         miAxios.delete('apps/modelos/delete_modelo', { params: { id } })
         .then(res => {
             getModelos();
+            if (callback) callback(res.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
+    const checkModelLinkExists = (link, callback) => {
+        miAxios.get('apps/modelos/check_model_link_exists', { params: { link } })
+        .then(res => {
             if (callback) callback(res.data);
         })
         .catch(err => { console.log(err); });
@@ -214,7 +230,6 @@ export const calculadora = props => {
         .catch(err => { console.log(err); });
     }
 
-    // ---- COMPRAS ----
     const getCompras = () => {
         miAxios.get('apps/compras/get_compras/')
         .then(res => {
@@ -241,15 +256,43 @@ export const calculadora = props => {
         .catch(err => { console.log(err); });
     }
 
+    // ---- COTIZACIONES PENDIENTES ----
+    const getPendientes = (estado = 'pendiente') => {
+        miAxios.post('apps/cotizaciones_pendientes/get_pendientes', { estado })
+        .then(res => {
+            u1("calculadora", "pendientes", res.data.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
+    const savePendiente = (data, callback) => {
+        miAxios.post('apps/cotizaciones_pendientes/save_pendiente', data)
+        .then(res => {
+            getPendientes();
+            if (callback) callback(res.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
+    const resolvePendiente = (data, callback) => {
+        miAxios.post('apps/cotizaciones_pendientes/resolve_pendiente', data)
+        .then(res => {
+            getPendientes();
+            if (callback) callback(res.data);
+        })
+        .catch(err => { console.log(err); });
+    }
+
     return {
         getFilamentos, saveFilamento, deleteFilamento,
         getResinas, saveResina, deleteResina,
         getPerfiles, savePerfil, deletePerfil,
         getCotizaciones, saveCotizacion, deleteCotizacion,
-        getModelos, getModelo, saveModelo, deleteModelo,
+        getModelos, getModelo, saveModelo, deleteModelo, checkModelLinkExists, getEstatusModelos,
         saveModeloArchivo, deleteModeloArchivo, extractMakerworld, downloadModeloArchivoFromUrl, saveModeloArchivoLink,
         getMaquinas, saveMaquina, deleteMaquina,
         getCompras, saveCompra, deleteCompra,
+        getPendientes, savePendiente, resolvePendiente,
     }
 }
 

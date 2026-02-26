@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from .api import GetModelos, GetModelo, SaveModelo, DeleteModelo, SaveModeloArchivo, DeleteModeloArchivo, ExtractMakerworld, DownloadModeloArchivoFromUrl, SaveModeloArchivoLink
+from .api import GetModelos, GetModelo, SaveModelo, DeleteModelo, SaveModeloArchivo, DeleteModeloArchivo, ExtractMakerworld, DownloadModeloArchivoFromUrl, SaveModeloArchivoLink, CheckModelLinkExists, GetEstatusModelos
 
 router = APIRouter()
 
@@ -52,4 +52,14 @@ async def download_modelo_archivo_from_url(request: Request):
 @router.post("/save_modelo_archivo_link")
 async def save_modelo_archivo_link(request: Request):
     r = await SaveModeloArchivoLink(request=request).run()
+    return r
+
+@router.get("/check_model_link_exists")
+async def check_model_link_exists(request: Request):
+    r = await CheckModelLinkExists(request=request).run()
+    return r
+
+@router.get("/get_estatus_modelos")
+async def get_estatus_modelos(request: Request):
+    r = await GetEstatusModelos(request=request).run()
     return r

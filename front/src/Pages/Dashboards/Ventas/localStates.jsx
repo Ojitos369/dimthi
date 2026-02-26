@@ -5,6 +5,7 @@ export const localStates = () => {
     const { s, f } = useStates();
     const compras = useMemo(() => s.calculadora?.compras || [], [s.calculadora?.compras]);
     const cotizaciones = useMemo(() => s.calculadora?.cotizaciones || [], [s.calculadora?.cotizaciones]);
+    const estatusModelos = useMemo(() => s.calculadora?.estatusModelos || { pendientes: 0, validados: 0, publicos: 0, privados: 0, total: 0 }, [s.calculadora?.estatusModelos]);
 
     const [filterUser, setFilterUser] = useState('');
     const [filterDateStart, setFilterDateStart] = useState('');
@@ -56,7 +57,8 @@ export const localStates = () => {
         processedSales, metrics, uniqueUsers,
         filterUser, setFilterUser,
         filterDateStart, setFilterDateStart,
-        filterDateEnd, setFilterDateEnd
+        filterDateEnd, setFilterDateEnd,
+        estatusModelos
     };
 };
 
@@ -68,5 +70,6 @@ export const localEffects = () => {
         f.u1('page', 'title', 'Dashboard de Ventas y Utilidades');
         f.calculadora.getCompras();
         f.calculadora.getCotizaciones();
+        f.calculadora.getEstatusModelos();
     }, []);
 };
