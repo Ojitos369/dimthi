@@ -188,3 +188,4 @@ CREATE TABLE IF NOT EXISTS archivos_cotizaciones_pendientes (
     archivo_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE cotizaciones ADD COLUMN IF NOT EXISTS codigo VARCHAR(20) UNIQUE;

@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import { useStates, createState } from '../../Hooks/useStates';
+import Swal from 'sweetalert2';
 import style from './styles/index.module.scss';
 
 export const localStates = () => {
@@ -92,7 +93,15 @@ export const localStates = () => {
                     }
                 }
                 
-                f.general?.notificacion?.({ title: 'Solicitud Enviada', message: 'Tus modelos han sido enviados para cotizar', mode: 'success' });
+                if (res.codigo) {
+                    Swal.fire({
+                        title: 'Cotización Solicitada',
+                        html: `Tus modelos han sido enviados a cotizar.<br/><br/>Tu Código de Seguimiento es:<br/><b>${res.codigo}</b><br/><br/><i>Por favor guarda este código; lo necesitarás para consultar el estatus.</i>`,
+                        icon: 'success'
+                    });
+                } else {
+                    f.general?.notificacion?.({ title: 'Solicitud Enviada', message: 'Tus modelos han sido enviados para cotizar', mode: 'success' });
+                }
                 setPendingCart([]);
                 setShowRequestQuoteModal(false);
                 // Refresh data
@@ -147,17 +156,23 @@ export const localStates = () => {
                         }
 
                         if (link) {
-                            setAddModeloMsg({ text: 'Modelo agregado al catálogo como público y pendiente de cotizar.', type: 'success' });
+                            Swal.fire({
+                                title: 'Modelo Agregado',
+                                text: 'Modelo agregado al catálogo como público y pendiente de cotizar.',
+                                icon: 'success'
+                            });
                         } else {
-                            setAddModeloMsg({ text: `Modelo agregado. Su código privado es: ${res.id.split('-')[0]}`, type: 'success' });
+                            Swal.fire({
+                                title: 'Modelo Privado Creado',
+                                html: `El modelo se ha guardado correctamente.<br/><br/>Código de Seguimiento Privado:<br/><b>${res.codigo}</b><br/><br/><i>Guarda este código para buscar tu modelo en el catálogo.</i>`,
+                                icon: 'success'
+                            });
                         }
                         
                         f.calculadora.getModelos({ catalogo: true });
-                        setTimeout(() => {
-                            setShowAddModal(false);
-                            setAddModeloMsg(null);
-                            resolve();
-                        }, 2000);
+                        setShowAddModal(false);
+                        setAddModeloMsg(null);
+                        resolve();
                     } else {
                         resolve();
                     }

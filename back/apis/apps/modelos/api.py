@@ -32,7 +32,18 @@ class GetModelos(NoSession, BaseApi):
         nombre = self.data.get("nombre", None)
         if nombre:
             nombre = nombre.strip().lower()
-            self.filtros += "AND LOWER(m.nombre) LIKE :nombre\n"
+            self.filtros += """
+            AND (
+                LOWER(m.nombre) LIKE :nombre 
+                OR CAST(m.id AS TEXT) LIKE :nombre 
+                OR EXISTS (
+                    SELECT 1 
+                    FROM cotizacion_modelos cm_search 
+                    JOIN cotizaciones c_search ON c_search.id = cm_search.cotizacion_id 
+                    WHERE cm_search.modelo_id = m.id AND c_search.codigo ILIKE :nombre
+                )
+            )
+            """
             self.query_data["nombre"] = f"%{nombre}%"
 
         id_modelo = self.data.get("id", None)
@@ -42,15 +53,17 @@ class GetModelos(NoSession, BaseApi):
             
         codigo = self.data.get("codigo", None)
         if codigo:
-            self.filtros += "AND CAST(m.id AS TEXT) LIKE :codigo\n"
-            self.query_data["codigo"] = f"{codigo}%"
+            self.filtros += "AND m.codigo ILIKE :codigo\n"
+            self.query_data["codigo"] = f"{codigo}" # Exact match for code
         
         catalogo = self.data.get("catalogo", False)
-        # Si es vista catálogo (no admin) y no buscaron por código explícito,
-        # obligamos a que solo salgan públicos y validados
-        if catalogo and str(catalogo).lower() == 'true' and not codigo:
-            self.filtros += "AND m.estatus_privacidad = 'publico'\n"
-            self.filtros += "AND m.estatus_validacion = 'validado'\n"
+        # Si es vista catálogo (no admin)
+        # Si se busca por código, se permite ver modelos privados.
+        # Si no se busca por código, se obligan a que solo salgan públicos y validados.
+        if catalogo and str(catalogo).lower() == 'true':
+            if not codigo: # Only apply public/validated filter if no specific code is searched
+                self.filtros += "AND m.estatus_privacidad = 'publico'\n"
+                self.filtros += "AND m.estatus_validacion = 'validado'\n"
             
         estatus_privacidad = self.data.get("estatus_privacidad", None)
         if estatus_privacidad:
@@ -89,7 +102,13 @@ class GetModelo(NoSession, BaseApi):
 
         # Get cotizaciones
         query_cotizaciones = """
-        SELECT c.*, pc.nombre as perfil_nombre
+        SELECT c.*, pc.nombre as perfil_nombre,
+               (
+                 SELECT json_agg(json_build_object('id', mr.id, 'nombre', mr.nombre))
+                 FROM cotizacion_modelos cmr
+                 JOIN modelos mr ON cmr.modelo_id = mr.id
+                 WHERE cmr.cotizacion_id = c.id AND mr.id != :modelo_id
+               ) as modelos_relacionados
         FROM cotizaciones c
         LEFT JOIN perfiles_costos pc ON c.perfil_costo_id = pc.id
         JOIN cotizacion_modelos cm ON c.id = cm.cotizacion_id
@@ -117,6 +136,20 @@ class SaveModelo(NoSession, BaseApi):
         estatus_privacidad = self.data.get("estatus_privacidad", "publico" if link_val else "privado")
         default_validacion = "validado" if link_val else "pendiente"
         estatus_validacion = self.data.get("estatus_validacion", default_validacion)
+        
+        # Generar código si es modelo privado (sin link)
+        codigo = None
+        if estatus_privacidad == 'privado':
+            # Verificar si ya tiene código
+            curr_query = "SELECT codigo FROM modelos WHERE id = :id"
+            try:
+                res_curr = self.conexion.consulta_asociativa(curr_query, {"id": id_modelo})
+                if not res_curr.empty and res_curr.iloc[0]["codigo"]:
+                    codigo = res_curr.iloc[0]["codigo"]
+                else:
+                    codigo = f"MOD-{id_modelo[:8].upper()}"
+            except Exception:
+                codigo = f"MOD-{id_modelo[:8].upper()}"
 
         modelo = {
             "id": id_modelo,
@@ -124,25 +157,27 @@ class SaveModelo(NoSession, BaseApi):
             "descripcion": self.data.get("descripcion", None),
             "link": link_val,
             "estatus_privacidad": estatus_privacidad,
-            "estatus_validacion": estatus_validacion
+            "estatus_validacion": estatus_validacion,
+            "codigo": codigo
         }
 
         query = """
-        INSERT INTO modelos (id, nombre, descripcion, link, estatus_privacidad, estatus_validacion)
-        VALUES (:id, :nombre, :descripcion, :link, :estatus_privacidad, :estatus_validacion)
+        INSERT INTO modelos (id, nombre, descripcion, link, estatus_privacidad, estatus_validacion, codigo)
+        VALUES (:id, :nombre, :descripcion, :link, :estatus_privacidad, :estatus_validacion, :codigo)
         ON CONFLICT (id) DO UPDATE
         SET nombre = EXCLUDED.nombre,
             descripcion = EXCLUDED.descripcion,
             link = EXCLUDED.link,
             estatus_privacidad = EXCLUDED.estatus_privacidad,
-            estatus_validacion = EXCLUDED.estatus_validacion
+            estatus_validacion = EXCLUDED.estatus_validacion,
+            codigo = EXCLUDED.codigo
         """
 
         if not self.conexion.ejecutar(query, modelo):
             self.conexion.rollback()
             raise self.MYE("Error al guardar el modelo")
         self.conexion.commit()
-        self.response = {"id": id_modelo}
+        self.response = {"id": id_modelo, "codigo": codigo}
 
 class CheckModelLinkExists(NoSession, BaseApi):
     def main(self):

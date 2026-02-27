@@ -10,7 +10,8 @@ export const ResultsPanel = ({ current }) => {
     const { 
         style, isFilamento, maquinaName, showDetail, results, handleSaveCotizacion, themeColors,
         comentarios, setComentarios, precioFinal, setPrecioFinal,
-        nombreCotizacion, setNombreCotizacion, logged
+        nombreCotizacion, setNombreCotizacion, logged,
+        codigoCotizacion, setCodigoCotizacion
     } = localStates();
     const fmt = v => (v || 0).toFixed(2);
 
@@ -59,6 +60,9 @@ export const ResultsPanel = ({ current }) => {
                         
                         <div style={{color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Nombre (Opcional)</div>
                         <input type="text" value={nombreCotizacion} onChange={e => setNombreCotizacion(e.target.value)} placeholder="Ej. Llaveros Batman" style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', marginBottom: '0.5rem'}} />
+                        
+                        <div style={{color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Asignar Código existente (Opcional)</div>
+                        <input type="text" value={codigoCotizacion} onChange={e => setCodigoCotizacion(e.target.value)} placeholder="Ej. COT-A1B2C3D4" style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', marginBottom: '0.5rem'}} />
                         
                         <div style={{marginTop: '0.5rem', color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Precio Final (Opcional, $)</div>
                         <input type="number" value={precioFinal || ''} onChange={e => setPrecioFinal(parseFloat(e.target.value) || 0)} placeholder={`Sugerido: $${fmt(current.price)}`} style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', marginBottom: '0.5rem'}} />

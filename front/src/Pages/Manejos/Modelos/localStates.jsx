@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import { useStates, createState } from '../../../Hooks/useStates';
+import Swal from 'sweetalert2';
 import style from '../shared/styles/manejo.module.scss';
 
 export const localStates = () => {
@@ -43,8 +44,23 @@ export const localStates = () => {
         if (!nombre.trim()) return;
         const data = { nombre, descripcion, link, estatus_privacidad: estatusPrivacidad, estatus_validacion: estatusValidacion };
         if (editId) data.id = editId;
-        f.calculadora.saveModelo(data, () => cancel());
-    }, [nombre, descripcion, link, estatusPrivacidad, estatusValidacion, editId, f.calculadora, cancel]);
+        f.calculadora.saveModelo(data, (res) => {
+            if (res && res.codigo) {
+                Swal.fire({
+                    title: 'Modelo Privado Creado',
+                    html: `El modelo se ha guardado correctamente.<br/><br/>Código de Seguimiento Privado:<br/><b>${res.codigo}</b><br/><br/><i>Guarda este código para buscar tu modelo en el catálogo.</i>`,
+                    icon: 'success'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Modelo Guardado',
+                    text: 'El modelo se ha guardado correctamente.',
+                    icon: 'success'
+                });
+            }
+            cancel();
+        });
+    }, [nombre, descripcion, link, estatusPrivacidad, estatusValidacion, editId, f.calculadora, cancel, f.general]);
 
     const handleDelete = useCallback((id) => f.calculadora.deleteModelo(id), [f.calculadora]);
 

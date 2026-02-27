@@ -48,10 +48,11 @@ class SavePendiente(NoSession, BaseApi):
         id_pendiente = self.get_id()
         
         query_cabecera = """
-        INSERT INTO cotizaciones_pendientes (id, nombre, comentarios)
-        VALUES (:id, :nombre, :comentarios)
+        INSERT INTO cotizaciones_pendientes (id, nombre, comentarios, codigo)
+        VALUES (:id, :nombre, :comentarios, :codigo)
         """
-        if not self.conexion.ejecutar(query_cabecera, {"id": id_pendiente, "nombre": nombre, "comentarios": comentarios}):
+        codigo = f"CP-{id_pendiente[:8].upper()}"
+        if not self.conexion.ejecutar(query_cabecera, {"id": id_pendiente, "nombre": nombre, "comentarios": comentarios, "codigo": codigo}):
             self.conexion.rollback()
             raise self.MYE("Error al guardar solicitud de cotización")
             
@@ -68,7 +69,44 @@ class SavePendiente(NoSession, BaseApi):
             })
             
         self.conexion.commit()
-        self.response = {"id": id_pendiente}
+        self.response = {"id": id_pendiente, "codigo": codigo}
+
+class GetPendienteByCodigo(NoSession, BaseApi):
+    def main(self):
+        self.show_me()
+        
+        codigo = self.data.get("codigo")
+        if not codigo:
+            raise self.MYE("Falta el código de seguimiento")
+            
+        query = """
+        SELECT cp.*,
+            (SELECT json_agg(json_build_object(
+                'modelo_id', cmp.modelo_id, 
+                'cantidad', cmp.cantidad,
+                'nombre_modelo', m.nombre,
+                'descripcion_modelo', m.descripcion,
+                'link_modelo', m.link,
+                'archivos', (SELECT json_agg(json_build_object('id', am.id, 'archivo_url', am.archivo_url)) FROM (SELECT id, archivo_url FROM archivos_modelos am2 WHERE am2.modelo_id = m.id ORDER BY am2.created_at DESC LIMIT 5) am)
+            )) 
+            FROM cotizacion_modelos_pendientes cmp
+            JOIN modelos m ON cmp.modelo_id = m.id
+            WHERE cmp.cotizacion_pdte_id = cp.id) as modelos_data,
+            (SELECT json_agg(json_build_object(
+                'id', acp.id,
+                'archivo_url', acp.archivo_url
+            ))
+            FROM archivos_cotizaciones_pendientes acp
+            WHERE acp.cotizacion_pdte_id = cp.id) as archivos_adjuntos
+        FROM cotizaciones_pendientes cp
+        WHERE cp.codigo = :codigo
+        """
+        pendiente = self.conexion.consulta_asociativa(query, {"codigo": codigo})
+        
+        if pendiente.empty:
+            raise self.MYE("No se encontró ninguna cotización con ese código")
+            
+        self.response = {"data": self.d2d(pendiente)[0]}
 
 
 class ResolvePendiente(NoSession, BaseApi):

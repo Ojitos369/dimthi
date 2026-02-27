@@ -211,6 +211,9 @@ export const pages = [
         {name: 'Calculadora 3D', page_name: 'calculadora', to: '/calculadora', reqLogin: false},
         // {name: 'Calculadora Detallada', page_name: 'calculadora_detallada', to: '/calculadora?mode=detailed', reqLogin: true},
     ]},
+    {name: 'Seguimiento', menu_name: 'seguimiento', elements: [
+        {name: 'Seguimiento', page_name: 'seguimiento', to: '/seguimiento', reqLogin: false},
+    ]},
     {name: 'Manejos', menu_name: 'manejos', reqLogin: true, elements: [
         {name: 'Modelos', page_name: 'mj_modelos', to: '/manejos/modelos', reqLogin: true},
         {name: 'Cotizaciones', page_name: 'mj_cotizaciones', to: '/manejos/cotizaciones', reqLogin: true},

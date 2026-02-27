@@ -139,9 +139,9 @@ export const DetailModal = ({ ls }) => {
                                     try { if (c.snapshot_data) snap = JSON.parse(c.snapshot_data); } catch(e) {}
                                     
                                     return (
-                                        <div key={c.id} style={{ background: '#222', padding: '0.75rem', borderRadius: '4px', border: '1px solid #333' }}>
+                                        <div key={c.id} style={{ background: '#222', padding: '0.75rem', borderRadius: '4px', border: '1px solid #333', marginBottom: '0.75rem' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                                <span style={{ color: '#fff', fontWeight: 'bold' }}>{c.nombre || c.id.substring(0,8)}</span>
+                                                <span style={{ color: '#fff', fontWeight: 'bold' }}>{c.codigo ? `[${c.codigo}] ` : ''}{c.nombre || c.id.substring(0,8)}</span>
                                                 <span style={{ color: '#4ade80', fontWeight: 'bold' }}>${parseFloat(c.precio_final||c.costo_total||0).toFixed(2)}</span>
                                             </div>
                                             
@@ -163,6 +163,17 @@ export const DetailModal = ({ ls }) => {
                                                     )}
                                                 </div>
                                             ) : null}
+                                            
+                                            {c.modelos_relacionados?.length > 0 && (
+                                                <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                                    <div style={{ color: '#888', marginBottom: '4px' }}>Otros modelos en esta cotización:</div>
+                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                        {c.modelos_relacionados.map((mr, i) => (
+                                                            <span key={i} style={{ background: '#333', color: '#ccc', padding: '2px 6px', borderRadius: '4px' }}>{mr.nombre}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}

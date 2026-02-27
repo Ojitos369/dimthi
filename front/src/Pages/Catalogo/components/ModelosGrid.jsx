@@ -94,7 +94,7 @@ const ModelCard = ({ m, style, selectModelo, addToPendingCart, pendingCart }) =>
                 </div>
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                     {m.precio_minimo > 0 ? (
-                        <div style={{ color: '#4ade80', fontWeight: 'bold' }}>Desde ${parseFloat(m.precio_minimo).toFixed(2)}</div>
+                        <div style={{ color: '#4ade80', fontWeight: 'bold' }}>Regular: ${parseFloat(m.precio_minimo).toFixed(2)}</div>
                     ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                             <button 

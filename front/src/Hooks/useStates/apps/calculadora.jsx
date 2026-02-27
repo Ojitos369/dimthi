@@ -153,6 +153,17 @@ export const calculadora = props => {
         .catch(err => { console.log(err); });
     }
 
+    const getPendienteByCodigo = (codigo, callback, errorCallback) => {
+        miAxios.post('apps/cotizaciones_pendientes/get_pendiente_by_codigo', { codigo })
+        .then(res => {
+            if (callback) callback(res.data);
+        })
+        .catch(err => {
+            console.log(err);
+            if (errorCallback) errorCallback(err);
+        });
+    }
+
     const checkModelLinkExists = (link, callback) => {
         miAxios.get('apps/modelos/check_model_link_exists', { params: { link } })
         .then(res => {
@@ -302,7 +313,7 @@ export const calculadora = props => {
         saveModeloArchivo, deleteModeloArchivo, extractMakerworld, downloadModeloArchivoFromUrl, saveModeloArchivoLink,
         getMaquinas, saveMaquina, deleteMaquina,
         getCompras, saveCompra, deleteCompra,
-        getPendientes, savePendiente, resolvePendiente, saveArchivoPendiente,
+        getPendientes, savePendiente, resolvePendiente, saveArchivoPendiente, getPendienteByCodigo
     }
 }
 

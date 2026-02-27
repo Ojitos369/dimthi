@@ -6,7 +6,7 @@ class GetCotizaciones(NoSession, BaseApi):
         self.show_me()
         self.get_filtros()
         query = """
-        SELECT c.*,
+        SELECT c.id, c.perfil_costo_id, c.costo_total, c.consto_material, c.consto_luz, c.consto_desgaste, c.consto_mano_obra, c.consto_gastos_generales, c.consto_margen_utilidad, c.created_at, c.comentarios, c.precio_final, c.nombre, c.snapshot_data, c.codigo,
             pc.nombre as perfil_nombre,
             (
                 SELECT json_agg(json_build_object(
@@ -71,19 +71,31 @@ class SaveCotizacion(NoSession, BaseApi):
             "comentarios": self.data.get("comentarios", None),
             "precio_final": self.data.get("precio_final", 0),
             "nombre": self.data.get("nombre", None),
-            "snapshot_data": self.data.get("snapshot_data", None)
+            "snapshot_data": self.data.get("snapshot_data", None),
+            "codigo": self.data.get("codigo", None)
         }
 
         if not self.existe:
+            if not cotizacion["codigo"]:
+                cotizacion["codigo"] = f"COT-{id_cotizacion[:8].upper()}"
             query = """
             INSERT INTO cotizaciones
             (id, perfil_costo_id, costo_total, consto_material,
-             consto_luz, consto_desgaste, consto_mano_obra, consto_gastos_generales, consto_margen_utilidad, comentarios, precio_final, nombre, snapshot_data)
+             consto_luz, consto_desgaste, consto_mano_obra, consto_gastos_generales, consto_margen_utilidad, comentarios, precio_final, nombre, snapshot_data, codigo)
             VALUES
             (:id, :perfil_costo_id, :costo_total, :consto_material,
-             :consto_luz, :consto_desgaste, :consto_mano_obra, :consto_gastos_generales, :consto_margen_utilidad, :comentarios, :precio_final, :nombre, :snapshot_data)
+             :consto_luz, :consto_desgaste, :consto_mano_obra, :consto_gastos_generales, :consto_margen_utilidad, :comentarios, :precio_final, :nombre, :snapshot_data, :codigo)
             """
         else:
+            if not cotizacion["codigo"]:
+                # Obtener codigo actual
+                curr_query = "SELECT codigo FROM cotizaciones WHERE id = :id"
+                res_curr = self.conexion.consulta_asociativa(curr_query, {"id": id_cotizacion})
+                if not res_curr.empty and res_curr.iloc[0]["codigo"]:
+                    cotizacion["codigo"] = res_curr.iloc[0]["codigo"]
+                else:
+                    cotizacion["codigo"] = f"COT-{id_cotizacion[:8].upper()}"
+                    
             query = """
             UPDATE cotizaciones
             SET perfil_costo_id = :perfil_costo_id,
@@ -97,7 +109,8 @@ class SaveCotizacion(NoSession, BaseApi):
                 comentarios = :comentarios,
                 precio_final = :precio_final,
                 nombre = :nombre,
-                snapshot_data = :snapshot_data
+                snapshot_data = :snapshot_data,
+                codigo = :codigo
             WHERE id = :id
             """
 
@@ -116,8 +129,7 @@ class SaveCotizacion(NoSession, BaseApi):
                 self.conexion.ejecutar(query_mod, {"id": self.get_id(), "cotizacion_id": id_cotizacion, "modelo_id": m_id})
 
         self.conexion.commit()
-        self.response = {"id": id_cotizacion}
-
+        self.response = {"id": id_cotizacion, "codigo": cotizacion["codigo"]}
 
 class DeleteCotizacion(NoSession, BaseApi):
     def main(self):

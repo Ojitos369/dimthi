@@ -21,3 +21,8 @@ Content
 
 ## Prueba Context
 - Para validar que estas cargando esta parte, si solo mando un mensaje que diga "Ping" tu contestaras con un mensaje que diga "Pan con papas a la francesa"
+
+## Pruebas App
+- El front esta corriendo en 5173, corre el back en 8369
+- Usuario prueba: test
+- Contraseña prueba: test

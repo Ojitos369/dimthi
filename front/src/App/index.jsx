@@ -18,6 +18,7 @@ import { ManejoCotizaciones } from '../Pages/Manejos/Cotizaciones';
 import { ManejoPerfiles } from '../Pages/Manejos/Perfiles';
 import { ManejoMaquinas } from '../Pages/Manejos/Maquinas';
 import { ManejoCompras } from '../Pages/Manejos/Compras';
+import Seguimiento from '../Pages/Seguimiento';
 
 import { SalesDashboard as VentasDashboard } from '../Pages/Dashboards/Ventas';
 import { ProductionDashboard } from '../Pages/Dashboards/Produccion';
@@ -91,6 +92,7 @@ function AppUI() {
                     <Route path="catalogos/impresoras/*" element={ <CatMaquinas /> } />
                     {/* Calculadora */}
                     <Route path="calculadora/*" element={ <CalculadoraPage /> } />
+                    <Route path="seguimiento/*" element={ <Seguimiento /> } />
                     {/* Manejos */}
                     <Route path="manejos/filamentos/*" element={ <ManejoFilamentos /> } />
                     <Route path="manejos/resinas/*" element={ <ManejoResinas /> } />

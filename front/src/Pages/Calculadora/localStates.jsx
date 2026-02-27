@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useStates, createState } from '../../Hooks/useStates';
+import Swal from 'sweetalert2';
 import style from './styles/index.module.scss';
 
 // --- CONSTANTES (fallback si no hay maquina seleccionada) ---
@@ -252,6 +253,8 @@ export const localStates = () => {
         });
     }, [newModeloName, f.calculadora, setSelectedModelos]);
 
+    const [codigoCotizacion, setCodigoCotizacion] = createState(['calc', 'codigoCotizacion'], '');
+
     // ---- Inline material creation ----
     const [showNewFilamento, setShowNewFilamento] = createState(['calc', 'showNewFilamento'], false);
     const [newFilNombre, setNewFilNombre] = createState(['calc', 'newFilNombre'], '');
@@ -322,12 +325,24 @@ export const localStates = () => {
             comentarios: comentarios,
             precio_final: finalP,
             nombre: nombreCotizacion,
-            snapshot_data: JSON.stringify(snapshot)
+            snapshot_data: JSON.stringify(snapshot),
+            codigo: codigoCotizacion || null
         };
-        f.calculadora.saveCotizacion(data, () => {
-            f.general?.notificacion?.({ mode: 'success', title: 'Cotización', message: 'Cotización guardada correctamente' });
+        f.calculadora.saveCotizacion(data, (res) => {
+            if (res.id) {
+                setCodigoCotizacion('');
+            }
+            if (res.codigo) {
+                Swal.fire({
+                    title: 'Cotización Guardada',
+                    html: `La cotización se ha guardado correctamente.<br/><br/>Código de Cotización:<br/><b>${res.codigo}</b><br/><br/><i>Guarda este código para tus registros.</i>`,
+                    icon: 'success'
+                });
+            } else {
+                f.general?.notificacion?.({ mode: 'success', title: 'Cotización', message: 'Cotización guardada correctamente' });
+            }
         });
-    }, [materialType, results, selectedModelos, activeProfileId, timeHours, timeMinutes, fdmWeightG, resinVolMl, comentarios, precioFinal, f]);
+    }, [materialType, results, selectedModelos, activeProfileId, timeHours, timeMinutes, fdmWeightG, resinVolMl, comentarios, precioFinal, nombreCotizacion, codigoCotizacion, f]);
 
     // Theme logic
     const themeColors = useMemo(() => {
@@ -381,7 +396,7 @@ export const localStates = () => {
         activeProfileId, profileDirty, newProfileName,
         materialType, showDetail, isFilamento, logged,
         selectedModelos, setSelectedModelos, newModeloName, showNewModelo,
-        nombreCotizacion, setNombreCotizacion,
+        nombreCotizacion, setNombreCotizacion, codigoCotizacion, setCodigoCotizacion,
         comentarios, precioFinal, setComentarios, setPrecioFinal,
         selectedMaquinaId, setSelectedMaquinaId, selectedMaquina, maquinaName,
         // Inline creation
