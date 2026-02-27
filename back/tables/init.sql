@@ -176,9 +176,6 @@ CREATE TABLE cotizacion_modelos_pendientes (
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
-
--- -------------------   NUEVOS CAMBIOS AGREGAR DEBAJO   -------------------
-
 ALTER TABLE filamentos ALTER COLUMN link_compra TYPE TEXT;
 ALTER TABLE resinas ALTER COLUMN link_compra TYPE TEXT;
 
@@ -188,4 +185,7 @@ CREATE TABLE IF NOT EXISTS archivos_cotizaciones_pendientes (
     archivo_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- -------------------   NUEVOS CAMBIOS AGREGAR DEBAJO   -------------------
 ALTER TABLE cotizaciones ADD COLUMN IF NOT EXISTS codigo VARCHAR(20) UNIQUE;
+
