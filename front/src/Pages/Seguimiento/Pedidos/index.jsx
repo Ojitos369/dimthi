@@ -182,6 +182,30 @@ export const Seg_Pedidos = () => {
                                                 {com.comentario}
                                             </div>
                                         )}
+
+                                        {com.archivos && com.archivos.length > 0 && (
+                                            <div style={{ marginTop: '8px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                                                {com.archivos.map(arch => {
+                                                    const url = arch.archivo_url.startsWith('http') ? arch.archivo_url : `http://localhost:8368/media/${arch.archivo_url}`;
+                                                    const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(arch.archivo_url);
+                                                    return (
+                                                        <a key={arch.id} href={url} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+                                                            {isImage ? (
+                                                                <img 
+                                                                    src={url}
+                                                                    style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #555' }}
+                                                                    alt="adjunto"
+                                                                />
+                                                            ) : (
+                                                                <div style={{ width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#333', borderRadius: '4px', border: '1px solid #555', fontSize: '0.7rem', color: '#ccc', textAlign: 'center', padding: '4px' }}>
+                                                                    <i className="fas fa-file" style={{ fontSize: '1.2rem' }}></i>
+                                                                </div>
+                                                            )}
+                                                        </a>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </div>
                                 ))
                             )}

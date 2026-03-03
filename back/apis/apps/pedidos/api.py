@@ -145,17 +145,16 @@ class AddPedidoComentario(NoSession, BaseApi):
             self.conexion.rollback()
             raise self.MYE("Error al guardar comentario")
             
+        # Extract files from multipart form
+        archivos = []
         if hasattr(self, 'form') and self.form:
-            archivos = self.form.getlist("archivos")
-        else:
-            archivos = []
+            for key, value in self.form.multi_items():
+                if key == "archivos" and hasattr(value, 'filename') and value.filename:
+                    archivos.append(value)
             
         if archivos:
             query_archivos = "INSERT INTO pedido_archivos (id, comentario_id, archivo_url) VALUES (:id, :comentario_id, :archivo_url)"
             for arch in archivos:
-                if not getattr(arch, "filename", None):
-                    continue
-                
                 folder_path = os.path.join(MEDIA_DIR, "pedidos", str(pedido_id))
                 os.makedirs(folder_path, exist_ok=True)
                 
@@ -163,11 +162,6 @@ class AddPedidoComentario(NoSession, BaseApi):
                 file_path = os.path.join(folder_path, filename)
                 
                 contents = arch.file.read()
-                if isinstance(contents, bytes):
-                    pass
-                else: 
-                    # If using await file.read(), since we are synchronous, starlette SpooledTemporaryFile allows .read() sync
-                    pass
                 
                 with open(file_path, 'wb') as f:
                     f.write(contents)

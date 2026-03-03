@@ -1,5 +1,6 @@
 from uuid import uuid4 as u4
 import pandas as pd
+pd.set_option('future.no_silent_downcasting', True)
 import numpy as np
 import datetime
 
@@ -39,7 +40,7 @@ class ClassBase:
             return []
         clean_df = df.copy().astype(object)
         target_replaces = {"None": None, "True": True, "False": False}
-        clean_df = clean_df.replace(target_replaces)
+        clean_df = clean_df.replace(target_replaces).infer_objects(copy=False)
         clean_df = clean_df.where(pd.notnull(clean_df), None)
         if isinstance(df, pd.DataFrame):
             return clean_df.to_dict(orient='records')
