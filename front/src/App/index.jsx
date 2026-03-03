@@ -18,8 +18,10 @@ import { ManejoCotizaciones } from '../Pages/Manejos/Cotizaciones';
 import { ManejoPerfiles } from '../Pages/Manejos/Perfiles';
 import { ManejoMaquinas } from '../Pages/Manejos/Maquinas';
 import { ManejoCompras } from '../Pages/Manejos/Compras';
-import Seguimiento from '../Pages/Seguimiento';
-
+import { Seg_Cotizaciones } from '../Pages/Seguimiento/Cotizaciones';
+import { Seg_Modelos } from '../Pages/Seguimiento/Modelos';
+import { Seg_Pedidos } from '../Pages/Seguimiento/Pedidos';
+import { ManejoPedidos } from '../Pages/Manejos/Pedidos';
 import { SalesDashboard as VentasDashboard } from '../Pages/Dashboards/Ventas';
 import { ProductionDashboard } from '../Pages/Dashboards/Produccion';
 import { InventoryDashboard } from '../Pages/Dashboards/Inventario';
@@ -92,7 +94,9 @@ function AppUI() {
                     <Route path="catalogos/impresoras/*" element={ <CatMaquinas /> } />
                     {/* Calculadora */}
                     <Route path="calculadora/*" element={ <CalculadoraPage /> } />
-                    <Route path="seguimiento/*" element={ <Seguimiento /> } />
+                    <Route path="seguimiento/cotizaciones/*" element={ <Seg_Cotizaciones /> } />
+                    <Route path="seguimiento/modelos/*" element={ <Seg_Modelos /> } />
+                    <Route path="seguimiento/pedidos/*" element={ <Seg_Pedidos /> } />
                     {/* Manejos */}
                     <Route path="manejos/filamentos/*" element={ <ManejoFilamentos /> } />
                     <Route path="manejos/resinas/*" element={ <ManejoResinas /> } />
@@ -101,6 +105,7 @@ function AppUI() {
                     <Route path="manejos/perfiles/*" element={ <ManejoPerfiles /> } />
                     <Route path="manejos/impresoras/*" element={ <ManejoMaquinas /> } />
                     <Route path="manejos/compras/*" element={ <ManejoCompras /> } />
+                    <Route path="manejos/pedidos/*" element={ <ManejoPedidos /> } />
                     
                     <Route path="dashboards/ventas/*" element={ <VentasDashboard /> } />
                     <Route path="dashboards/produccion/*" element={ <ProductionDashboard /> } />

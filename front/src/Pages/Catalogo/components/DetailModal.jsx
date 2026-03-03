@@ -7,7 +7,11 @@ const formatDate = (dateStr) => {
 };
 
 export const DetailModal = ({ ls }) => {
-    const { style, selectedModeloId, modeloActual, closeDetail, logged, addToPendingCart, pendingCart } = ls;
+    const { 
+        style, selectedModeloId, modeloActual, closeDetail, logged, 
+        addToPendingCart, pendingCart,
+        pendingOrderCart, addToPendingOrderCart
+    } = ls;
     const [currentIndex, setCurrentIndex] = useState(0);
     
     // React automatically drops states when component unmounts, but since 
@@ -101,6 +105,27 @@ export const DetailModal = ({ ls }) => {
                     )}
                     
                     <div className={style.detailRow} style={{ marginTop: '0.5rem' }}>
+                        <span className={style.detailLabel}>Estado:</span>
+                        <span className={style.detailValue} style={{ display: 'flex', gap: '8px' }}>
+                            <span style={{ 
+                                textTransform: 'capitalize', 
+                                color: modeloActual.estatus_privacidad === 'privado' ? '#dc2626' : '#4ade80',
+                                fontWeight: 'bold' 
+                            }}>
+                                {modeloActual.estatus_privacidad}
+                            </span>
+                            <span style={{ color: '#888' }}>|</span>
+                            <span style={{ 
+                                textTransform: 'capitalize', 
+                                color: modeloActual.estatus_validacion === 'pendiente' ? '#f59e0b' : '#4ade80',
+                                fontWeight: 'bold'
+                            }}>
+                                {modeloActual.estatus_validacion}
+                            </span>
+                        </span>
+                    </div>
+                    
+                    <div className={style.detailRow} style={{ marginTop: '0.5rem' }}>
                         <span className={style.detailLabel}>Fecha de creación:</span>
                         <span className={style.detailValue}>{formatDate(modeloActual.created_at)}</span>
                     </div>
@@ -164,16 +189,35 @@ export const DetailModal = ({ ls }) => {
                                                 </div>
                                             ) : null}
                                             
-                                            {c.modelos_relacionados?.length > 0 && (
+                                            {c.modelos_relacionados?.length > 1 && (
                                                 <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '4px', fontSize: '0.8rem' }}>
-                                                    <div style={{ color: '#888', marginBottom: '4px' }}>Otros modelos en esta cotización:</div>
+                                                    <div style={{ color: '#888', marginBottom: '4px' }}>Modelos en la cotización:</div>
                                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                                                         {c.modelos_relacionados.map((mr, i) => (
-                                                            <span key={i} style={{ background: '#333', color: '#ccc', padding: '2px 6px', borderRadius: '4px' }}>{mr.nombre}</span>
+                                                            <span key={i} style={{ background: '#333', color: '#ccc', padding: '2px 6px', borderRadius: '4px' }}>{mr.cantidad || 1}x {mr.nombre}</span>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
+
+                                            <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button 
+                                                    onClick={(e) => addToPendingOrderCart(c, e)}
+                                                    style={{ 
+                                                        background: pendingOrderCart?.find(x => x.id === c.id) ? '#4ade80' : '#10b981', 
+                                                        color: '#111', 
+                                                        border: 'none', 
+                                                        padding: '6px 12px', 
+                                                        borderRadius: '4px', 
+                                                        cursor: pendingOrderCart?.find(x => x.id === c.id) ? 'default' : 'pointer',
+                                                        fontWeight: 'bold',
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                    disabled={!!pendingOrderCart?.find(x => x.id === c.id)}
+                                                >
+                                                    {pendingOrderCart?.find(x => x.id === c.id) ? '✔ En carrito de pedidos' : 'Añadir al Pedido'}
+                                                </button>
+                                            </div>
                                         </div>
                                     );
                                 })}

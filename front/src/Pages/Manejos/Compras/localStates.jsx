@@ -4,8 +4,19 @@ import style from '../shared/styles/manejo.module.scss';
 
 export const localStates = () => {
     const { s, f } = useStates();
+    const [searchTerm, setSearchTerm] = createState(['mjCompras', 'searchTerm'], '');
 
-    const compras = useMemo(() => s.calculadora?.compras || [], [s.calculadora?.compras]);
+    const compras = useMemo(() => {
+        const list = s.calculadora?.compras || [];
+        if (!searchTerm.trim()) return list;
+        const term = searchTerm.trim().toLowerCase();
+        return list.filter(item => 
+            item.nombre?.toLowerCase().includes(term) ||
+            item.usuario?.toLowerCase().includes(term) ||
+            item.cotizacion_nombre?.toLowerCase().includes(term)
+        );
+    }, [s.calculadora?.compras, searchTerm]);
+
     const cotizaciones = useMemo(() => s.calculadora?.cotizaciones || [], [s.calculadora?.cotizaciones]);
 
     const [showForm, setShowForm] = createState(['mjCompras', 'showForm'], false);
@@ -56,7 +67,7 @@ export const localStates = () => {
     const handleDelete = useCallback((id) => f.calculadora.deleteCompra(id), [f.calculadora]);
 
     return { 
-        style, compras, cotizaciones, showForm, editId, 
+        style, searchTerm, setSearchTerm, compras, cotizaciones, showForm, editId, 
         cotizacionId, setCotizacionId, cantidad, setCantidad, 
         usuario, setUsuario, comentario, setComentario, nombreCompra, setNombreCompra,
         openNew, openEdit, cancel, handleSave, handleDelete 

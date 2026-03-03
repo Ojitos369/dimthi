@@ -4,7 +4,18 @@ import style from '../shared/styles/manejo.module.scss';
 
 export const localStates = () => {
     const { s, f } = useStates();
-    const perfiles = useMemo(() => s.calculadora?.perfiles || [], [s.calculadora?.perfiles]);
+    const [searchTerm, setSearchTerm] = createState(['mjPerfiles', 'searchTerm'], '');
+    
+    const perfiles = useMemo(() => {
+        const list = s.calculadora?.perfiles || [];
+        if (!searchTerm.trim()) return list;
+        const term = searchTerm.trim().toLowerCase();
+        return list.filter(item => 
+            item.nombre?.toLowerCase().includes(term) ||
+            item.tipo_material?.toLowerCase().includes(term)
+        );
+    }, [s.calculadora?.perfiles, searchTerm]);
+    
     const filamentos = useMemo(() => s.calculadora?.filamentos || [], [s.calculadora?.filamentos]);
     const resinas = useMemo(() => s.calculadora?.resinas || [], [s.calculadora?.resinas]);
     const maquinas = useMemo(() => s.calculadora?.maquinas || [], [s.calculadora?.maquinas]);
@@ -54,7 +65,7 @@ export const localStates = () => {
     const handleDelete = useCallback((id) => f.calculadora.deletePerfil(id), [f.calculadora]);
 
     return {
-        style, perfiles, filamentos, resinas, maquinas,
+        style, perfiles, searchTerm, setSearchTerm, filamentos, resinas, maquinas,
         showForm, editId, nombre, setNombre,
         tipoMaterial, setTipoMaterial,
         filamentoId, setFilamentoId, resinaId, setResinaId,

@@ -114,6 +114,17 @@ export const calculadora = props => {
         miAxios.get('apps/modelos/get_modelos/', { params })
         .then(res => {
             u1("calculadora", "modelos", res.data.data);
+            if(res.data.pagination) {
+                u1("calculadora", "modelosPagination", res.data.pagination);
+            }
+        })
+        .catch(err => { console.log(err); });
+    }
+
+    const searchModelos = (params = {}, callback) => {
+        miAxios.get('apps/modelos/get_modelos/', { params })
+        .then(res => {
+            if (callback) callback(res.data.data);
         })
         .catch(err => { console.log(err); });
     }
@@ -139,6 +150,16 @@ export const calculadora = props => {
         miAxios.post('apps/modelos/save_modelo', data)
         .then(res => {
             getModelos();
+            if (res.data.is_new && res.data.codigo) {
+                import('sweetalert2').then(Swal => {
+                    Swal.default.fire({
+                        title: '¡Modelo Creado!',
+                        html: `Guarda tu código de seguimiento: <b style="font-size: 1.2em;">${res.data.codigo}</b><br><br>Podrás usarlo más adelante para rastrear este modelo y sus cotizaciones.`,
+                        icon: 'success',
+                        confirmButtonColor: '#7c3aed'
+                    });
+                });
+            }
             if (callback) callback(res.data);
         })
         .catch(err => { console.log(err); });
@@ -156,11 +177,14 @@ export const calculadora = props => {
     const getPendienteByCodigo = (codigo, callback, errorCallback) => {
         miAxios.post('apps/cotizaciones_pendientes/get_pendiente_by_codigo', { codigo })
         .then(res => {
-            if (callback) callback(res.data);
+            if (callback) callback(res.data?.data || res.data);
         })
         .catch(err => {
             console.log(err);
-            if (errorCallback) errorCallback(err);
+            if (errorCallback) {
+                // Return a friendly string based on the 404 or other status code if needed
+                errorCallback(err.response?.data?.detail || 'No se encontró ninguna cotización con ese código.');
+            }
         });
     }
 
@@ -309,7 +333,7 @@ export const calculadora = props => {
         getResinas, saveResina, deleteResina,
         getPerfiles, savePerfil, deletePerfil,
         getCotizaciones, saveCotizacion, deleteCotizacion,
-        getModelos, getModelo, saveModelo, deleteModelo, checkModelLinkExists, getEstatusModelos,
+        getModelos, searchModelos, getModelo, saveModelo, deleteModelo, checkModelLinkExists, getEstatusModelos,
         saveModeloArchivo, deleteModeloArchivo, extractMakerworld, downloadModeloArchivoFromUrl, saveModeloArchivoLink,
         getMaquinas, saveMaquina, deleteMaquina,
         getCompras, saveCompra, deleteCompra,

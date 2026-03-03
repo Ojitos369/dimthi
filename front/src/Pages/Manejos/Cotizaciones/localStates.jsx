@@ -5,8 +5,27 @@ import style from '../shared/styles/manejo.module.scss';
 
 export const localStates = () => {
     const { s, f } = useStates();
-    const cotizaciones = useMemo(() => s.calculadora?.cotizaciones || [], [s.calculadora?.cotizaciones]);
-    const pendientes = useMemo(() => s.calculadora?.pendientes || [], [s.calculadora?.pendientes]);
+    const [searchTerm, setSearchTerm] = createState(['mjCotizaciones', 'searchTerm'], '');
+    
+    const cotizaciones = useMemo(() => {
+        const list = s.calculadora?.cotizaciones || [];
+        if (!searchTerm.trim()) return list;
+        const term = searchTerm.trim().toLowerCase();
+        return list.filter(item => 
+            item.nombre?.toLowerCase().includes(term) ||
+            item.codigo?.toLowerCase().includes(term)
+        );
+    }, [s.calculadora?.cotizaciones, searchTerm]);
+    
+    const pendientes = useMemo(() => {
+        const list = s.calculadora?.pendientes || [];
+        if (!searchTerm.trim()) return list;
+        const term = searchTerm.trim().toLowerCase();
+        return list.filter(item => 
+            item.nombre_cliente?.toLowerCase().includes(term) ||
+            item.codigo?.toLowerCase().includes(term)
+        );
+    }, [s.calculadora?.pendientes, searchTerm]);
 
     const [activeTab, setActiveTab] = createState(['mjCotizaciones', 'activeTab'], 'pendientes'); // 'historial' or 'pendientes'
     const [showForm, setShowForm] = createState(['mjCotizaciones', 'showForm'], false);
@@ -78,7 +97,7 @@ export const localStates = () => {
     }, [f.calculadora]);
 
     return { 
-        style, cotizaciones, pendientes, handleDelete,
+        style, searchTerm, setSearchTerm, cotizaciones, pendientes, handleDelete,
         showForm, editId, nombre, setNombre, comentarios, setComentarios, precioFinal, setPrecioFinal,
         openEdit, cancel, handleSave,
         detailId, openDetail, closeDetail,

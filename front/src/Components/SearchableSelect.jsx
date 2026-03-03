@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 
-export const SearchableSelect = ({ options, value, onChange, placeholder = 'Seleccionar...', className, style }) => {
+export const SearchableSelect = ({ options, value, onChange, placeholder = 'Seleccionar...', className, style, onSearch }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const wrapperRef = useRef(null);
 
-    // Filter options based on search term
-    const filteredOptions = options.filter(opt => 
+    // Filter options based on search term (disable local filter if async search)
+    const filteredOptions = onSearch ? options : options.filter(opt => 
         opt.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -24,6 +24,17 @@ export const SearchableSelect = ({ options, value, onChange, placeholder = 'Sele
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Async search trigger
+    useEffect(() => {
+        if (onSearch && isOpen) {
+            const timeoutId = setTimeout(() => {
+                onSearch(searchTerm);
+            }, 500);
+            return () => clearTimeout(timeoutId);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchTerm, isOpen]);
 
     const handleSelect = (val) => {
         onChange(val);

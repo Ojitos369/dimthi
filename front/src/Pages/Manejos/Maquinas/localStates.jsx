@@ -4,7 +4,19 @@ import style from '../shared/styles/manejo.module.scss';
 
 export const localStates = () => {
     const { s, f } = useStates();
-    const maquinas = useMemo(() => s.calculadora?.maquinas || [], [s.calculadora?.maquinas]);
+    const [searchTerm, setSearchTerm] = createState(['mjMaquinas', 'searchTerm'], '');
+    
+    const maquinas = useMemo(() => {
+        const list = s.calculadora?.maquinas || [];
+        if (!searchTerm.trim()) return list;
+        const term = searchTerm.trim().toLowerCase();
+        return list.filter(item => 
+            item.nombre?.toLowerCase().includes(term) ||
+            item.tipo?.toLowerCase().includes(term) ||
+            item.marca?.toLowerCase().includes(term)
+        );
+    }, [s.calculadora?.maquinas, searchTerm]);
+    
     const [showForm, setShowForm] = createState(['mjMaquinas', 'showForm'], false);
     const [editId, setEditId] = createState(['mjMaquinas', 'editId'], null);
     const [nombre, setNombre] = createState(['mjMaquinas', 'nombre'], '');
@@ -43,7 +55,7 @@ export const localStates = () => {
     const handleDelete = useCallback((id) => f.calculadora.deleteMaquina(id), [f.calculadora]);
 
     return {
-        style, maquinas, showForm, editId,
+        style, maquinas, searchTerm, setSearchTerm, showForm, editId,
         nombre, setNombre, tipo, setTipo, marca, setMarca,
         powerKw, setPowerKw, depHr, setDepHr, consHr, setConsHr,
         lcdHr, setLcdHr, fepHr, setFepHr, ipaPerPrint, setIpaPerPrint,

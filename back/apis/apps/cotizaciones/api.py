@@ -18,7 +18,8 @@ class GetCotizaciones(NoSession, BaseApi):
                 FROM cotizacion_modelos cm
                 JOIN modelos m ON cm.modelo_id = m.id
                 WHERE cm.cotizacion_id = c.id
-            ) as modelos
+            ) as modelos,
+            (SELECT id FROM cotizaciones_pendientes cp WHERE cp.codigo = c.codigo LIMIT 1) as cotizacion_pdte_id
         FROM cotizaciones c
         LEFT JOIN perfiles_costos pc ON c.perfil_costo_id = pc.id
         WHERE 1=1
@@ -75,9 +76,21 @@ class SaveCotizacion(NoSession, BaseApi):
             "codigo": self.data.get("codigo", None)
         }
 
+        codigo_solicitud = self.data.get("codigo", None)
+        id_pendiente = None
+        
+        if codigo_solicitud:
+            # Verify if codigo exists in pending
+            query_pdte = "SELECT id, cotizacion_id FROM cotizaciones_pendientes WHERE codigo = :codigo"
+            res_pdte = self.conexion.consulta_asociativa(query_pdte, {"codigo": codigo_solicitud})
+            if res_pdte.empty:
+                raise self.MYE("El código de solicitud proporcionado no existe.")
+                
+            id_pendiente = res_pdte.iloc[0]["id"]
+            
+        cotizacion["codigo"] = codigo_solicitud
+
         if not self.existe:
-            if not cotizacion["codigo"]:
-                cotizacion["codigo"] = f"COT-{id_cotizacion[:8].upper()}"
             query = """
             INSERT INTO cotizaciones
             (id, perfil_costo_id, costo_total, consto_material,
@@ -87,15 +100,6 @@ class SaveCotizacion(NoSession, BaseApi):
              :consto_luz, :consto_desgaste, :consto_mano_obra, :consto_gastos_generales, :consto_margen_utilidad, :comentarios, :precio_final, :nombre, :snapshot_data, :codigo)
             """
         else:
-            if not cotizacion["codigo"]:
-                # Obtener codigo actual
-                curr_query = "SELECT codigo FROM cotizaciones WHERE id = :id"
-                res_curr = self.conexion.consulta_asociativa(curr_query, {"id": id_cotizacion})
-                if not res_curr.empty and res_curr.iloc[0]["codigo"]:
-                    cotizacion["codigo"] = res_curr.iloc[0]["codigo"]
-                else:
-                    cotizacion["codigo"] = f"COT-{id_cotizacion[:8].upper()}"
-                    
             query = """
             UPDATE cotizaciones
             SET perfil_costo_id = :perfil_costo_id,
@@ -127,6 +131,11 @@ class SaveCotizacion(NoSession, BaseApi):
             query_mod = "INSERT INTO cotizacion_modelos (id, cotizacion_id, modelo_id) VALUES (:id, :cotizacion_id, :modelo_id)"
             for m_id in modelos:
                 self.conexion.ejecutar(query_mod, {"id": self.get_id(), "cotizacion_id": id_cotizacion, "modelo_id": m_id})
+
+        # Update cotizaciones_pendientes to link back to the cotizacion
+        if id_pendiente:
+            query_update_pdte = "UPDATE cotizaciones_pendientes SET cotizacion_id = :cotizacion_id, estado = 'resuelta' WHERE id = :id_pdte"
+            self.conexion.ejecutar(query_update_pdte, {"cotizacion_id": id_cotizacion, "id_pdte": id_pendiente})
 
         self.conexion.commit()
         self.response = {"id": id_cotizacion, "codigo": cotizacion["codigo"]}

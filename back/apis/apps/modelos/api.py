@@ -11,6 +11,24 @@ class GetModelos(NoSession, BaseApi):
     def main(self):
         self.show_me()
         self.get_filtros()
+        query_count = f"""
+        SELECT COUNT(*) as total
+        FROM modelos m
+        WHERE 1=1 {self.filtros}
+        """
+        total_res = self.conexion.consulta_asociativa(query_count, self.query_data)
+        total = int(total_res.iloc[0]["total"]) if not total_res.empty else 0
+
+        limit = self.data.get("limit", 20)
+        page = self.data.get("page", 1)
+        # Validar numérico
+        try: limit = int(limit) 
+        except: limit = 20
+        try: page = int(page) 
+        except: page = 1
+        
+        offset = (page - 1) * limit
+
         query = """
         SELECT m.*,
             (SELECT json_agg(json_build_object('id', am.id, 'archivo_url', am.archivo_url)) FROM (SELECT id, archivo_url FROM archivos_modelos am2 WHERE am2.modelo_id = m.id ORDER BY am2.created_at DESC LIMIT 5) am) as archivos,
@@ -20,10 +38,21 @@ class GetModelos(NoSession, BaseApi):
         FROM modelos m
         WHERE 1=1
         {0}
-        ORDER BY m.created_at DESC
+        ORDER BY m.nombre ASC
+        LIMIT :limit OFFSET :offset
         """.format(self.filtros)
-        modelos = self.conexion.consulta_asociativa(query, self.query_data)
-        self.response = {"data": self.d2d(modelos)}
+        
+        query_data = {**self.query_data, "limit": limit, "offset": offset}
+        modelos = self.conexion.consulta_asociativa(query, query_data)
+        self.response = {
+            "data": self.d2d(modelos),
+            "pagination": {
+                "total": total,
+                "page": page,
+                "limit": limit,
+                "total_pages": (total + limit - 1) // limit if limit > 0 else 0
+            }
+        }
 
     def get_filtros(self):
         self.filtros = ""
@@ -104,10 +133,10 @@ class GetModelo(NoSession, BaseApi):
         query_cotizaciones = """
         SELECT c.*, pc.nombre as perfil_nombre,
                (
-                 SELECT json_agg(json_build_object('id', mr.id, 'nombre', mr.nombre))
+                 SELECT json_agg(json_build_object('id', mr.id, 'nombre', mr.nombre, 'cantidad', 1))
                  FROM cotizacion_modelos cmr
                  JOIN modelos mr ON cmr.modelo_id = mr.id
-                 WHERE cmr.cotizacion_id = c.id AND mr.id != :modelo_id
+                 WHERE cmr.cotizacion_id = c.id
                ) as modelos_relacionados
         FROM cotizaciones c
         LEFT JOIN perfiles_costos pc ON c.perfil_costo_id = pc.id
@@ -137,19 +166,18 @@ class SaveModelo(NoSession, BaseApi):
         default_validacion = "validado" if link_val else "pendiente"
         estatus_validacion = self.data.get("estatus_validacion", default_validacion)
         
-        # Generar código si es modelo privado (sin link)
+        # Generar código para el modelo
         codigo = None
-        if estatus_privacidad == 'privado':
-            # Verificar si ya tiene código
-            curr_query = "SELECT codigo FROM modelos WHERE id = :id"
-            try:
-                res_curr = self.conexion.consulta_asociativa(curr_query, {"id": id_modelo})
-                if not res_curr.empty and res_curr.iloc[0]["codigo"]:
-                    codigo = res_curr.iloc[0]["codigo"]
-                else:
-                    codigo = f"MOD-{id_modelo[:8].upper()}"
-            except Exception:
+        # Verificar si ya tiene código
+        curr_query = "SELECT codigo FROM modelos WHERE id = :id"
+        try:
+            res_curr = self.conexion.consulta_asociativa(curr_query, {"id": id_modelo})
+            if not res_curr.empty and res_curr.iloc[0]["codigo"]:
+                codigo = res_curr.iloc[0]["codigo"]
+            else:
                 codigo = f"MOD-{id_modelo[:8].upper()}"
+        except Exception:
+            codigo = f"MOD-{id_modelo[:8].upper()}"
 
         modelo = {
             "id": id_modelo,
@@ -177,7 +205,7 @@ class SaveModelo(NoSession, BaseApi):
             self.conexion.rollback()
             raise self.MYE("Error al guardar el modelo")
         self.conexion.commit()
-        self.response = {"id": id_modelo, "codigo": codigo}
+        self.response = {"id": id_modelo, "codigo": codigo, "is_new": not bool(self.data.get("id"))}
 
 class CheckModelLinkExists(NoSession, BaseApi):
     def main(self):

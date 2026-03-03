@@ -46,7 +46,8 @@ export const PendientesTable = ({ ls }) => {
                     <div key={p.id} className={style.tableRow} style={{gridTemplateColumns: 'minmax(100px, 1fr) 2fr 2fr 180px', alignItems: 'center'}}>
                         <span className={style.truncate} title={p.nombre}>
                             <b>{p.nombre}</b>
-                            <div style={{fontSize:'0.8em',color:'#666'}}>{p.id.substring(0,8)}</div>
+                            <div style={{fontSize:'0.8em',color:'#666'}}>ID: {p.id.substring(0,8)}</div>
+                            {p.codigo && <div style={{fontSize:'0.9em',color:'#a78bfa', fontWeight:'bold', marginTop:'2px'}}>{p.codigo}</div>}
                         </span>
                         
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>

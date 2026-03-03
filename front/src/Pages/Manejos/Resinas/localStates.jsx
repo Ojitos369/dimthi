@@ -4,7 +4,19 @@ import style from '../shared/styles/manejo.module.scss';
 
 export const localStates = () => {
     const { s, f } = useStates();
-    const resinas = useMemo(() => s.calculadora?.resinas || [], [s.calculadora?.resinas]);
+    const [searchTerm, setSearchTerm] = createState(['mjResinas', 'searchTerm'], '');
+    
+    const resinas = useMemo(() => {
+        const list = s.calculadora?.resinas || [];
+        if (!searchTerm.trim()) return list;
+        const term = searchTerm.trim().toLowerCase();
+        return list.filter(item => 
+            item.nombre?.toLowerCase().includes(term) ||
+            item.color?.toLowerCase().includes(term) ||
+            item.marca?.toLowerCase().includes(term)
+        );
+    }, [s.calculadora?.resinas, searchTerm]);
+    
     const [showForm, setShowForm] = createState(['mjResinas', 'showForm'], false);
     const [editId, setEditId] = createState(['mjResinas', 'editId'], null);
     const [nombre, setNombre] = createState(['mjResinas', 'nombre'], '');
@@ -27,7 +39,7 @@ export const localStates = () => {
 
     const handleDelete = useCallback((id) => f.calculadora.deleteResina(id), [f.calculadora]);
 
-    return { style, resinas, showForm, editId, nombre, setNombre, color, setColor, marca, setMarca, pesoKg, setPesoKg, precioKg, setPrecioKg, linkCompra, setLinkCompra, openNew, openEdit, cancel, handleSave, handleDelete };
+    return { style, resinas, searchTerm, setSearchTerm, showForm, editId, nombre, setNombre, color, setColor, marca, setMarca, pesoKg, setPesoKg, precioKg, setPrecioKg, linkCompra, setLinkCompra, openNew, openEdit, cancel, handleSave, handleDelete };
 };
 
 export const localEffects = () => {

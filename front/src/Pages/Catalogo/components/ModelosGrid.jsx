@@ -92,6 +92,18 @@ const ModelCard = ({ m, style, selectModelo, addToPendingCart, pendingCart }) =>
                         {m.num_archivos || 0} archivo{m.num_archivos !== 1 ? 's' : ''}
                     </span>
                 </div>
+                <div style={{ display: 'flex', gap: '5px', marginTop: '5px' }}>
+                    {m.estatus_privacidad === 'privado' && (
+                        <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#dc2626', color: 'white', fontWeight: 'bold' }}>
+                            Privado
+                        </span>
+                    )}
+                    {m.estatus_validacion === 'pendiente' && (
+                        <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#f59e0b', color: 'white', fontWeight: 'bold' }}>
+                            En Revisión
+                        </span>
+                    )}
+                </div>
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                     {m.precio_minimo > 0 ? (
                         <div style={{ color: '#4ade80', fontWeight: 'bold' }}>Regular: ${parseFloat(m.precio_minimo).toFixed(2)}</div>

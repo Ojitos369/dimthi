@@ -62,7 +62,7 @@ export const auth = props => {
             u1("usuario", "data", user);
         })
         .catch(err => {
-            auth.closeSession();
+            closeSession();
         }).finally(() => {
             u2("loadings", "auth", "validateLogin", false);
         });

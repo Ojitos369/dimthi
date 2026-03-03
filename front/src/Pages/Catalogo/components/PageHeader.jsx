@@ -18,7 +18,7 @@ export const PageHeader = ({ ls }) => {
                         background: '#4f46e5', color: 'white', border: 'none', padding: '8px 16px',
                         borderRadius: '6px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                     }}>
-                    <span>+</span> Añadir Modelo
+                    <span>+</span> Solicitar Modelo
                 </button>
             </div>
         </div>

@@ -61,7 +61,7 @@ export const ResultsPanel = ({ current }) => {
                         <div style={{color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Nombre (Opcional)</div>
                         <input type="text" value={nombreCotizacion} onChange={e => setNombreCotizacion(e.target.value)} placeholder="Ej. Llaveros Batman" style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', marginBottom: '0.5rem'}} />
                         
-                        <div style={{color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Asignar Código existente (Opcional)</div>
+                        <div style={{color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Vincular a Solicitud (Opcional)</div>
                         <input type="text" value={codigoCotizacion} onChange={e => setCodigoCotizacion(e.target.value)} placeholder="Ej. COT-A1B2C3D4" style={{width: '100%', padding: '0.5rem', background: '#222', border: '1px solid #444', color: 'white', borderRadius: '4px', marginBottom: '0.5rem'}} />
                         
                         <div style={{marginTop: '0.5rem', color: '#aaa', fontSize: '0.8rem', marginBottom: '0.25rem'}}>Precio Final (Opcional, $)</div>

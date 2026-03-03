@@ -47,12 +47,14 @@ class SavePendiente(NoSession, BaseApi):
             
         id_pendiente = self.get_id()
         
+        material_sugerido = self.data.get("material", "a revision")
+
         query_cabecera = """
-        INSERT INTO cotizaciones_pendientes (id, nombre, comentarios, codigo)
-        VALUES (:id, :nombre, :comentarios, :codigo)
+        INSERT INTO cotizaciones_pendientes (id, nombre, comentarios, codigo, material_sugerido)
+        VALUES (:id, :nombre, :comentarios, :codigo, :material_sugerido)
         """
-        codigo = f"CP-{id_pendiente[:8].upper()}"
-        if not self.conexion.ejecutar(query_cabecera, {"id": id_pendiente, "nombre": nombre, "comentarios": comentarios, "codigo": codigo}):
+        codigo = f"COT-{id_pendiente[:8].upper()}"
+        if not self.conexion.ejecutar(query_cabecera, {"id": id_pendiente, "nombre": nombre, "comentarios": comentarios, "codigo": codigo, "material_sugerido": material_sugerido}):
             self.conexion.rollback()
             raise self.MYE("Error al guardar solicitud de cotización")
             
@@ -97,7 +99,15 @@ class GetPendienteByCodigo(NoSession, BaseApi):
                 'archivo_url', acp.archivo_url
             ))
             FROM archivos_cotizaciones_pendientes acp
-            WHERE acp.cotizacion_pdte_id = cp.id) as archivos_adjuntos
+            WHERE acp.cotizacion_pdte_id = cp.id) as archivos_adjuntos,
+            (SELECT json_build_object(
+                'precio_final', c.precio_final,
+                'comentarios', c.comentarios,
+                'snapshot_data', c.snapshot_data,
+                'nombre', c.nombre
+            )
+            FROM cotizaciones c
+            WHERE c.id = cp.cotizacion_id) as cotizacion_data
         FROM cotizaciones_pendientes cp
         WHERE cp.codigo = :codigo
         """

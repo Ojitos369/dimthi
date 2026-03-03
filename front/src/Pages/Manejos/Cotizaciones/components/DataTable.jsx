@@ -15,7 +15,11 @@ export const DataTable = ({ ls }) => {
             {cotizaciones.length === 0 && <div className={style.emptyState}>No hay cotizaciones registradas.</div>}
             {cotizaciones.map(c => (
                 <div key={c.id} className={style.tableRow} style={{gridTemplateColumns: 'minmax(100px, 1fr) 2fr 3fr 1fr 1fr 100px'}}>
-                    <span className={style.truncate} title={c.id}><b>{c.nombre || c.id.substring(0,8)}</b><div style={{fontSize:'0.8em',color:'#666'}}>{c.nombre ? c.id.substring(0,8) : ''}</div></span>
+                    <span className={style.truncate} title={c.id}>
+                        <b>{c.nombre || c.id.substring(0,8)}</b>
+                        <div style={{fontSize:'0.8em',color:'#666'}}>{c.id.substring(0,8)}</div>
+                        {c.codigo && <div style={{fontSize:'0.9em',color:'#a78bfa', marginTop:'2px'}}>Sol: {c.codigo}</div>}
+                    </span>
                     <span className={style.truncate} title={c.modelos?.map(m=>m.nombre).join(', ')}>
                         {c.modelos?.map(m=>m.nombre).join(', ') || 'Sin Modelo'} / {c.tipo_material}
                     </span>

@@ -68,6 +68,7 @@ class BaseApi(ClassBase):
             content_type = self.request.headers.get("content-type", "")
             if "multipart/form-data" in content_type:
                 form = await self.request.form()
+                self.form = form
                 data = {key: value for key, value in form.items()}
             else:
                 data = await self.request.json()

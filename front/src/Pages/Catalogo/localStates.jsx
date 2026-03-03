@@ -10,6 +10,9 @@ export const localStates = () => {
     const logged = useMemo(() => s.auth?.logged, [s.auth?.logged]);
     
     const [searchTerm, setSearchTerm] = createState(['catalogo', 'searchTerm'], '');
+    const [page, setPage] = createState(['catalogo', 'page'], 1);
+    const pagination = useMemo(() => s.calculadora?.modelosPagination || null, [s.calculadora?.modelosPagination]);
+    
     const [selectedModeloId, setSelectedModeloId] = createState(['catalogo', 'selectedModeloId'], null);
     const modeloActual = useMemo(() => s.calculadora?.modeloActual || null, [s.calculadora?.modeloActual]);
     
@@ -20,21 +23,17 @@ export const localStates = () => {
     // Cart for pending quotes
     const [pendingCart, setPendingCart] = createState(['catalogo', 'pendingCart'], []);
 
+    // Cart for pending orders
+    const [pendingOrderCart, setPendingOrderCart] = createState(['catalogo', 'pendingOrderCart'], []);
+
     // Request Quote Modal
     const [showRequestQuoteModal, setShowRequestQuoteModal] = createState(['catalogo', 'showRequestQuoteModal'], false);
     const [requestQuoteMsg, setRequestQuoteMsg] = createState(['catalogo', 'requestQuoteMsg'], null);
 
-    const filteredModelos = useMemo(() => {
-        // En backend ya se filtró por código si se escribió
-        // Si no, acá seguimos filtrando por nombre/desc normal a los publicos.
-        if (!searchTerm.trim()) return modelos;
-        const term = searchTerm.trim().toLowerCase();
-        return modelos.filter(m =>
-            m.nombre?.toLowerCase().includes(term) ||
-            m.descripcion?.toLowerCase().includes(term) ||
-            m.id?.toLowerCase().includes(term)
-        );
-    }, [modelos, searchTerm]);
+    const setSearchTermAndResetPage = useCallback((term) => {
+        setSearchTerm(term);
+        setPage(1);
+    }, [setSearchTerm, setPage]);
 
     const selectModelo = useCallback((id) => {
         setSelectedModeloId(id);
@@ -67,6 +66,31 @@ export const localStates = () => {
         setPendingCart(pendingCart.map(m => m.id === id ? { ...m, cantidad: Math.max(1, cantidad) } : m));
     }, [pendingCart, setPendingCart]);
 
+    const addToPendingOrderCart = useCallback((cotizacion, event) => {
+        if(event) event.stopPropagation();
+        let newCart;
+        if(pendingOrderCart.find(c => c.id === cotizacion.id)) {
+            newCart = pendingOrderCart;
+        } else {
+            // Include model info for UI purposes
+            const modelName = modeloActual ? modeloActual.nombre : '';
+            newCart = [...pendingOrderCart, { ...cotizacion, modelo_nombre: modelName, cantidad: 1, notas: '' }];
+        }
+        setPendingOrderCart(newCart);
+    }, [pendingOrderCart, setPendingOrderCart, modeloActual]);
+
+    const removeFromPendingOrderCart = useCallback((id) => {
+        setPendingOrderCart(pendingOrderCart.filter(c => c.id !== id));
+    }, [pendingOrderCart, setPendingOrderCart]);
+
+    const updatePendingOrderQuantity = useCallback((id, cantidad) => {
+        setPendingOrderCart(pendingOrderCart.map(c => c.id === id ? { ...c, cantidad: Math.max(1, cantidad) } : c));
+    }, [pendingOrderCart, setPendingOrderCart]);
+
+    const updatePendingOrderNotes = useCallback((id, notas) => {
+        setPendingOrderCart(pendingOrderCart.map(c => c.id === id ? { ...c, notas } : c));
+    }, [pendingOrderCart, setPendingOrderCart]);
+
     const openRequestQuoteModal = useCallback(() => {
         if (pendingCart.length === 0) return;
         setShowRequestQuoteModal(true);
@@ -78,6 +102,7 @@ export const localStates = () => {
         const data = {
             nombre: quoteData.nombre || 'Asignación Web',
             comentarios: quoteData.comentarios || '',
+            material: quoteData.material || 'a revision',
             modelos_ids: pendingCart.map(m => ({ id: m.id, cantidad: m.cantidad || 1 }))
         };
         
@@ -105,11 +130,43 @@ export const localStates = () => {
                 setPendingCart([]);
                 setShowRequestQuoteModal(false);
                 // Refresh data
-                f.calculadora.getModelos({ catalogo: true });
+                f.calculadora.getModelos({ catalogo: !logged, page, limit: 20 });
                 resolve();
             });
         });
     }, [pendingCart, f.calculadora, f.general, setPendingCart, setShowRequestQuoteModal]);
+
+    const submitPendingOrder = useCallback(async (clienteNombre, contacto) => {
+        if(pendingOrderCart.length === 0) return;
+
+        const items = pendingOrderCart.map(c => ({
+            cotizacion_id: c.id,
+            cantidad: c.cantidad || 1,
+            notas: c.notas || ''
+        }));
+
+        const data = {
+            cliente_nombre: clienteNombre,
+            contacto: contacto,
+            cotizaciones: items
+        };
+
+        return new Promise((resolve) => {
+            f.pedidos.generarPedido(data, (res) => {
+                if (res.codigo) {
+                    Swal.fire({
+                        title: 'Pedido Generado',
+                        html: `Tu pedido ha sido procesado exitosamente.<br/><br/>Tu Código de Seguimiento es:<br/><b>${res.codigo}</b><br/><br/><i>Guarda este código para rastrear el progreso de tu orden.</i>`,
+                        icon: 'success'
+                    });
+                } else {
+                    f.general?.notificacion?.({ title: 'Pedido Creado', message: 'Tu pedido se generó correctamente', mode: 'success' });
+                }
+                setPendingOrderCart([]);
+                resolve();
+            });
+        });
+    }, [pendingOrderCart, f.pedidos, f.general, setPendingOrderCart]);
 
     const extractInfoHandler = useCallback((url, callback) => {
         if (!url) return;
@@ -169,7 +226,7 @@ export const localStates = () => {
                             });
                         }
                         
-                        f.calculadora.getModelos({ catalogo: true });
+                        f.calculadora.getModelos({ catalogo: !logged, page, limit: 20 });
                         setShowAddModal(false);
                         setAddModeloMsg(null);
                         resolve();
@@ -196,11 +253,13 @@ export const localStates = () => {
 
     return {
         style, logged,
-        modelos: filteredModelos,
-        searchTerm, setSearchTerm,
+        modelos: modelos,
+        pagination, setPage,
+        searchTerm, setSearchTerm: setSearchTermAndResetPage,
         selectedModeloId, modeloActual,
         selectModelo, closeDetail,
         pendingCart, addToPendingCart, removeFromPendingCart, updatePendingCartQuantity, 
+        pendingOrderCart, addToPendingOrderCart, removeFromPendingOrderCart, updatePendingOrderQuantity, updatePendingOrderNotes, setPendingOrderCart, submitPendingOrder,
         submitPendingQuotes, openRequestQuoteModal,
         showAddModal, setShowAddModal, addModeloHandler, addModeloMsg, extractInfoHandler,
         showRequestQuoteModal, setShowRequestQuoteModal, requestQuoteMsg
@@ -214,17 +273,24 @@ export const localEffects = () => {
         f.u1('page', 'actual', 'catalogo');
         f.u1('page', 'actualMenu', 'catalogo');
         f.u1('page', 'title', 'Catálogo de Modelos');
-        f.calculadora.getModelos({ catalogo: true });
-    }, []);
+        f.calculadora.getModelos({ catalogo: !s.auth?.logged });
+    }, [s.auth?.logged]);
 
-    // Efecto de búsqueda
+    // Efecto de búsqueda y paginación
     useEffect(() => {
-        const searchTerm = s.catalogo?.searchTerm || '';
+        const searchTerm = (s.catalogo?.searchTerm || '').trim();
+        const page = s.catalogo?.page || 1;
+        const limit = 20;
+
         const timeoutId = setTimeout(() => {
             if (f.calculadora) {
-                f.calculadora.getModelos({ catalogo: true, codigo: searchTerm.trim() });
+                if (searchTerm.toUpperCase().startsWith('MOD-') || searchTerm.toUpperCase().startsWith('COT-')) {
+                    f.calculadora.getModelos({ catalogo: !s.auth?.logged, codigo: searchTerm.toUpperCase(), page, limit });
+                } else {
+                    f.calculadora.getModelos({ catalogo: !s.auth?.logged, nombre: searchTerm, page, limit });
+                }
             }
         }, 500);
         return () => clearTimeout(timeoutId);
-    }, [s.catalogo?.searchTerm]);
+    }, [s.catalogo?.searchTerm, s.catalogo?.page, s.auth?.logged]);
 };

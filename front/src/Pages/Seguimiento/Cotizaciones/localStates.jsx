@@ -1,4 +1,4 @@
-import { useStates, createState } from '../../Hooks/useStates';
+import { useStates, createState } from '../../../Hooks/useStates';
 import { useCallback, useEffect } from 'react';
 
 export const localStates = () => {

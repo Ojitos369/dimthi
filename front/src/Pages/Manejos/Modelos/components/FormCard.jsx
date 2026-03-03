@@ -12,7 +12,7 @@ export const FormCard = ({ ls }) => {
 
     const resolveMediaUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `/api/media/${url}`;
+        return url.startsWith('http') ? url : `http://localhost:8369/media/${url}`;
     };
 
     const handleDropFile = (files) => {

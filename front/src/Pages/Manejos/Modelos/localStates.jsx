@@ -9,6 +9,16 @@ export const localStates = () => {
     // selectedModelo could be fetched if we want to show its files. Since GetModelos returns num_archivos, we'll fetch full det on edit
     
     const [showForm, setShowForm] = createState(['mjModelos', 'showForm'], false);
+    
+    const [searchTerm, setSearchTerm] = createState(['mjModelos', 'searchTerm'], '');
+    const [page, setPage] = createState(['mjModelos', 'page'], 1);
+    const pagination = useMemo(() => s.calculadora?.modelosPagination || null, [s.calculadora?.modelosPagination]);
+    
+    const setSearchTermAndResetPage = useCallback((term) => {
+        setSearchTerm(term);
+        setPage(1);
+    }, [setSearchTerm, setPage]);
+
     const [editId, setEditId] = createState(['mjModelos', 'editId'], null);
     const [nombre, setNombre] = createState(['mjModelos', 'nombre'], '');
     const [descripcion, setDescripcion] = createState(['mjModelos', 'descripcion'], '');
@@ -154,12 +164,12 @@ export const localStates = () => {
                         });
                     });
                     Promise.all(promises).then(() => {
-                        f.calculadora.getModelos();
+                        f.calculadora.getModelos({ page, limit: 20 });
                         setIsExtracting(false);
                         f.general.notificacion({ title: 'Éxito', message: 'Modelo creado con éxito y sus imágenes', mode: 'success' });
                     });
                 } else {
-                    f.calculadora.getModelos();
+                    f.calculadora.getModelos({ page, limit: 20 });
                     setIsExtracting(false);
                     f.general.notificacion({ title: 'Éxito', message: 'Modelo creado con éxito', mode: 'success' });
                 }
@@ -172,6 +182,7 @@ export const localStates = () => {
         descripcion, setDescripcion, link, setLink, archivos,
         estatusPrivacidad, setEstatusPrivacidad, estatusValidacion, setEstatusValidacion,
         isExtracting,
+        searchTerm, setSearchTerm: setSearchTermAndResetPage, page, setPage, pagination,
         openNew, openEdit, cancel, handleSave, handleDelete,
         handleFileChange, handleFileUpload, handleDeleteArchivo,
         handleExtractMakerworld, handleAddByLinkPrompt
@@ -179,11 +190,24 @@ export const localStates = () => {
 };
 
 export const localEffects = () => {
-    const { f } = useStates();
+    const { s, f } = useStates();
     useEffect(() => {
         f.u1('page', 'actual', 'mj_modelos');
         f.u1('page', 'actualMenu', 'manejos');
         f.u1('page', 'title', 'Manejo de Modelos');
-        f.calculadora.getModelos();
     }, []);
+
+    // Efecto de búsqueda y paginación
+    useEffect(() => {
+        const searchTerm = (s.mjModelos?.searchTerm || '').trim();
+        const page = s.mjModelos?.page || 1;
+        const limit = 20;
+
+        const timeoutId = setTimeout(() => {
+            if (f.calculadora) {
+                f.calculadora.getModelos({ nombre: searchTerm, page, limit });
+            }
+        }, 500);
+        return () => clearTimeout(timeoutId);
+    }, [s.mjModelos?.searchTerm, s.mjModelos?.page]);
 };

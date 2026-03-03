@@ -4,7 +4,19 @@ import style from '../shared/styles/manejo.module.scss';
 
 export const localStates = () => {
     const { s, f } = useStates();
-    const filamentos = useMemo(() => s.calculadora?.filamentos || [], [s.calculadora?.filamentos]);
+    const [searchTerm, setSearchTerm] = createState(['mjFilamentos', 'searchTerm'], '');
+    
+    const filamentos = useMemo(() => {
+        const list = s.calculadora?.filamentos || [];
+        if (!searchTerm.trim()) return list;
+        const term = searchTerm.trim().toLowerCase();
+        return list.filter(item => 
+            item.nombre?.toLowerCase().includes(term) ||
+            item.color?.toLowerCase().includes(term) ||
+            item.marca?.toLowerCase().includes(term)
+        );
+    }, [s.calculadora?.filamentos, searchTerm]);
+    
     const [showForm, setShowForm] = createState(['mjFilamentos', 'showForm'], false);
     const [editId, setEditId] = createState(['mjFilamentos', 'editId'], null);
     const [nombre, setNombre] = createState(['mjFilamentos', 'nombre'], '');
@@ -27,7 +39,7 @@ export const localStates = () => {
 
     const handleDelete = useCallback((id) => f.calculadora.deleteFilamento(id), [f.calculadora]);
 
-    return { style, filamentos, showForm, editId, nombre, setNombre, color, setColor, marca, setMarca, pesoKg, setPesoKg, precioKg, setPrecioKg, linkCompra, setLinkCompra, openNew, openEdit, cancel, handleSave, handleDelete };
+    return { style, filamentos, searchTerm, setSearchTerm, showForm, editId, nombre, setNombre, color, setColor, marca, setMarca, pesoKg, setPesoKg, precioKg, setPrecioKg, linkCompra, setLinkCompra, openNew, openEdit, cancel, handleSave, handleDelete };
 };
 
 export const localEffects = () => {

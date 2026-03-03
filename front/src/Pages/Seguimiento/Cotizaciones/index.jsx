@@ -1,7 +1,7 @@
 import { localStates, localEffects } from './localStates';
 import style from './styles/index.module.scss';
 
-export default function Seguimiento() {
+export const Seg_Cotizaciones = () => {
     localEffects();
     const {
         codigo, setCodigo,
@@ -62,12 +62,58 @@ export default function Seguimiento() {
                             <strong>Fecha:</strong>
                             <span>{new Date(resultado.created_at).toLocaleDateString()}</span>
                         </div>
+                        <div className={style.infoItem}>
+                            <strong>Material Solicitado:</strong>
+                            <span style={{textTransform: 'capitalize'}}>{resultado.material_sugerido || 'A revisión'}</span>
+                        </div>
                     </div>
 
                     {resultado.comentarios && (
                         <div className={style.comentariosBox}>
-                            <strong>Comentarios:</strong>
+                            <strong>Comentarios de Solicitud:</strong>
                             <p>{resultado.comentarios}</p>
+                        </div>
+                    )}
+
+                    {resultado.cotizacion_data && (
+                        <div className={style.comentariosBox} style={{ marginTop: '1.5rem', borderLeftColor: '#fbbf24' }}>
+                            <h3 style={{ margin: '0 0 1rem 0', color: '#fbbf24' }}>Detalles de la Cotización Final</h3>
+                            
+                            <div className={style.infoGrid}>
+                                {(() => {
+                                    const cot = resultado.cotizacion_data;
+                                    let snap = {};
+                                    try { snap = JSON.parse(cot.snapshot_data || '{}'); } catch(e){}
+                                    
+                                    return (
+                                        <>
+                                            <div className={style.infoItem}>
+                                                <strong>Precio Final:</strong>
+                                                <span style={{ color: '#10b981', fontWeight: 'bold' }}>${parseFloat(cot.precio_final || snap.results?.price || 0).toFixed(2)}</span>
+                                            </div>
+                                            <div className={style.infoItem}>
+                                                <strong>Tiempo Estimado:</strong>
+                                                <span>{snap.time_h || 0} hrs {snap.time_m || 0} min</span>
+                                            </div>
+                                            <div className={style.infoItem}>
+                                                <strong>Material:</strong>
+                                                <span style={{textTransform: 'capitalize'}}>{snap.materiaL_type || 'Desconocido'}</span>
+                                            </div>
+                                            <div className={style.infoItem}>
+                                                <strong>{snap.materiaL_type === 'resina' ? 'Volumen:' : 'Peso:'}</strong>
+                                                <span>{snap.materiaL_type === 'resina' ? ((snap.volume_ml || 0) + ' ml') : ((snap.weight_g || 0) + ' g')}</span>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+                            </div>
+
+                            {resultado.cotizacion_data.comentarios && (
+                                <div style={{marginTop: '1rem'}}>
+                                    <strong>Notas de Cotización:</strong>
+                                    <p>{resultado.cotizacion_data.comentarios}</p>
+                                </div>
+                            )}
                         </div>
                     )}
 

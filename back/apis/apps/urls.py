@@ -8,6 +8,7 @@ from .modelos.urls import router as modelos_router
 from .maquinas.urls import router as maquinas_router
 from .compras.urls import router as compras_router
 from .cotizaciones_pendientes.urls import router as cotizaciones_pendientes_router
+from .pedidos.urls import router as pedidos_router
 
 router = APIRouter()
 
@@ -19,3 +20,4 @@ router.include_router(modelos_router, prefix="/modelos")
 router.include_router(maquinas_router, prefix="/maquinas")
 router.include_router(compras_router, prefix="/compras")
 router.include_router(cotizaciones_pendientes_router, prefix="/cotizaciones_pendientes")
+router.include_router(pedidos_router, prefix="/pedidos")

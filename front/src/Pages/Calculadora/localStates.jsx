@@ -292,8 +292,7 @@ export const localStates = () => {
         });
     }, [newMaqNombre, materialType, f.calculadora, setSelectedMaquinaId]);
 
-    const handleSaveCotizacion = useCallback(() => {
-        const isFilamento = materialType === 'filamento';
+    const handleSaveCotizacion = useCallback(() => {        const isFilamento = materialType === 'filamento';
         const current = isFilamento ? results.fdm : results.resin;
         const finalP = precioFinal > 0 ? precioFinal : current.price;
         
@@ -329,9 +328,18 @@ export const localStates = () => {
             codigo: codigoCotizacion || null
         };
         f.calculadora.saveCotizacion(data, (res) => {
-            if (res.id) {
-                setCodigoCotizacion('');
-            }
+            // Reset input fields
+            setTimeHours(1);
+            setTimeMinutes(10);
+            setFdmWeightG(20);
+            setResinVolMl(30);
+            setLaborMinutes(15);
+            setNombreCotizacion('');
+            setComentarios('');
+            setPrecioFinal(0);
+            setSelectedModelos([]);
+            setCodigoCotizacion('');
+
             if (res.codigo) {
                 Swal.fire({
                     title: 'Cotización Guardada',

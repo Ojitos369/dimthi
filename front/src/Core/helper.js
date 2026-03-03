@@ -212,9 +212,12 @@ export const pages = [
         // {name: 'Calculadora Detallada', page_name: 'calculadora_detallada', to: '/calculadora?mode=detailed', reqLogin: true},
     ]},
     {name: 'Seguimiento', menu_name: 'seguimiento', elements: [
-        {name: 'Seguimiento', page_name: 'seguimiento', to: '/seguimiento', reqLogin: false},
+        {name: 'Cotizaciones', page_name: 'seguimiento_cotizaciones', to: '/seguimiento/cotizaciones', reqLogin: false},
+        {name: 'Modelos', page_name: 'seguimiento_modelos', to: '/seguimiento/modelos', reqLogin: false},
+        {name: 'Pedidos', page_name: 'seguimiento_pedidos', to: '/seguimiento/pedidos', reqLogin: false},
     ]},
     {name: 'Manejos', menu_name: 'manejos', reqLogin: true, elements: [
+        {name: 'Pedidos', page_name: 'mj_pedidos', to: '/manejos/pedidos', reqLogin: true},
         {name: 'Modelos', page_name: 'mj_modelos', to: '/manejos/modelos', reqLogin: true},
         {name: 'Cotizaciones', page_name: 'mj_cotizaciones', to: '/manejos/cotizaciones', reqLogin: true},
         {name: 'Filamentos', page_name: 'mj_filamentos', to: '/manejos/filamentos', reqLogin: true},

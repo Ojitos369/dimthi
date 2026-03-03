@@ -45,6 +45,7 @@ import { app as appMod } from "./app";
 import { general as generalMod } from "./general";
 import { auth as authMod } from "./auth";
 import { calculadora as calculadoraMod } from "./calculadora";
+import { pedidos as pedidosMod } from "./pedidos";
 
 const updates = () => {
     const ls = useSelector(state => state.fs.ls);
@@ -97,10 +98,11 @@ export const useBase = props => {
     const app = appMod({ ...bases, ...updatesVars });
     const auth = authMod({ ...bases, ...updatesVars, notificacion: general.notificacion });
     const calculadora = calculadoraMod({ ...bases, ...updatesVars });
+    const pedidos = pedidosMod({ ...bases, ...updatesVars });
 
     return {
         MySwal, miAxios,
         u0, u1, u2, u3, u4, u5, u6, u7, u8, u9,
-        app, general, auth, calculadora,
+        app, general, auth, calculadora, pedidos
     };
 }

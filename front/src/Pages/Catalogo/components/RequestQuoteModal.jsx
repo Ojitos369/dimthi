@@ -1,40 +1,56 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { SearchableSelect } from '../../../Components/SearchableSelect';
 import { FileDropZone } from '../../../Components/FileDropZone';
+import { useStates } from '../../../Hooks/useStates';
 
 export const RequestQuoteModal = ({ ls }) => {
+    const { f } = useStates();
     const { 
         showRequestQuoteModal, setShowRequestQuoteModal, 
         pendingCart, removeFromPendingCart, updatePendingCartQuantity, addToPendingCart,
-        submitPendingQuotes, requestQuoteMsg, modelos: allModelos
+        submitPendingQuotes, requestQuoteMsg, logged
     } = ls;
     
     const [nombre, setNombre] = useState('');
     const [comentarios, setComentarios] = useState('');
+    const [material, setMaterial] = useState('');
     const [archivos, setArchivos] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [searchOptions, setSearchOptions] = useState([]);
+
+    // Initial search and cache
+    useEffect(() => {
+        if (showRequestQuoteModal) {
+            handleSearch('');
+        }
+    }, [showRequestQuoteModal]);
+
+    const handleSearch = (term) => {
+        if (!f.calculadora.searchModelos) return;
+        f.calculadora.searchModelos({ nombre: term, limit: 15, catalogo: !logged }, (data) => {
+            setSearchOptions(data.map(m => ({ value: m.id, label: m.nombre, model: m })));
+        });
+    };
 
     const modelOptions = useMemo(() => {
-        return allModelos
-            .filter(m => !pendingCart.find(pc => pc.id === m.id))
-            .map(m => ({ value: m.id, label: m.nombre }));
-    }, [allModelos, pendingCart]);
+        return searchOptions.filter(opt => !pendingCart.find(pc => pc.id === opt.value));
+    }, [searchOptions, pendingCart]);
 
     if (!showRequestQuoteModal) return null;
 
     const handleSend = async () => {
         setIsSubmitting(true);
         try {
-            await submitPendingQuotes({ nombre, comentarios, archivos });
+            await submitPendingQuotes({ nombre, comentarios, archivos, material });
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleAddModel = (id) => {
-        const model = allModelos.find(m => m.id === id);
-        if (model) {
-            addToPendingCart(model);
+        const option = searchOptions.find(o => o.value === id);
+        if (option && option.model) {
+            addToPendingCart(option.model);
         }
     };
 
@@ -54,7 +70,7 @@ export const RequestQuoteModal = ({ ls }) => {
                     )}
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <label style={{ color: '#aaa', fontSize: '0.9rem' }}>Tu Nombre / Empresa</label>
+                        <label style={{ color: '#aaa', fontSize: '0.9rem' }}>Quien Eres?</label>
                         <input 
                             type="text" 
                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #444', background: '#222', color: 'white', boxSizing: 'border-box' }}
@@ -101,6 +117,7 @@ export const RequestQuoteModal = ({ ls }) => {
                                 <label style={{ color: '#aaa', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>Agregar otro modelo:</label>
                                 <SearchableSelect 
                                     options={modelOptions} 
+                                    onSearch={handleSearch}
                                     value="" 
                                     onChange={handleAddModel} 
                                     placeholder="Buscar modelo..."
@@ -118,6 +135,20 @@ export const RequestQuoteModal = ({ ls }) => {
                             placeholder="Especificaciones, colores, urgencia, etc."
                             disabled={isSubmitting}
                         />
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <label style={{ color: '#aaa', fontSize: '0.9rem' }}>Material Sugerido (opcional)</label>
+                        <select 
+                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #444', background: '#222', color: 'white', boxSizing: 'border-box' }}
+                            value={material} 
+                            onChange={e => setMaterial(e.target.value)} 
+                            disabled={isSubmitting}
+                        >
+                            <option value="">A revisión</option>
+                            <option value="filamento">Filamento</option>
+                            <option value="resina">Resina</option>
+                        </select>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
