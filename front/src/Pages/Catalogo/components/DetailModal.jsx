@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mediaUrl } from '../../../constants/api';
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -52,8 +53,7 @@ export const DetailModal = ({ ls }) => {
 
     const resolveMediaUrl = (url) => {
         if (!url) return '';
-        // The media router is included at /media in back/urls.py
-        return url.startsWith('http') ? url : `http://localhost:8369/media/${url}`;
+        return mediaUrl(url);
     };
 
     const decodeHtml = (html) => {

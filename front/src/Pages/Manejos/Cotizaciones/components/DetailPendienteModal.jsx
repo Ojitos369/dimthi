@@ -1,4 +1,5 @@
 import React from 'react';
+import { mediaUrl } from '../../../../constants/api';
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -7,9 +8,7 @@ const formatDate = (dateStr) => {
 };
 
 const getImageUrl = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    return `http://localhost:8369/media/${url}`;
+    return mediaUrl(url);
 };
 
 export const DetailPendienteModal = ({ ls }) => {

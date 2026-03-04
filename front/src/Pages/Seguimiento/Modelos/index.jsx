@@ -1,4 +1,5 @@
 import { localStates, localEffects } from './localStates';
+import { mediaUrl } from '../../../constants/api';
 import style from '../Cotizaciones/styles/index.module.scss'; // Reuse styling from Cotizaciones
 
 export const Seg_Modelos = () => {
@@ -79,7 +80,7 @@ export const Seg_Modelos = () => {
                                     <div key={idx} style={{ background: '#222', padding: '10px', borderRadius: '8px', textAlign: 'center', border: '1px solid #333' }}>
                                         {arch.archivo_url.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
                                             <img 
-                                                src={arch.archivo_url.startsWith('http') ? arch.archivo_url : `http://localhost:8369/media/${arch.archivo_url}`}
+                                                src={mediaUrl(arch.archivo_url)}
                                                 alt="Modelo"
                                                 style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px' }}
                                             />
@@ -89,8 +90,8 @@ export const Seg_Modelos = () => {
                                             </div>
                                         )}
                                         <div style={{ marginTop: '10px' }}>
-                                            <a 
-                                                href={arch.archivo_url.startsWith('http') ? arch.archivo_url : `http://localhost:8369/media/${arch.archivo_url}`}
+                                        <a 
+                                            href={mediaUrl(arch.archivo_url)}
                                                 target="_blank" 
                                                 rel="noreferrer"
                                                 style={{ color: '#10b981', textDecoration: 'none', fontSize: '0.85rem' }}

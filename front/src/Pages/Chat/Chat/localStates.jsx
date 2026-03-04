@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createState } from '../../../Hooks/useStates';
+import { wsUrl as createWsUrl } from '../../../constants/api';
 import style from './styles/index.module.scss';
 import styleGen from '../styles/index.module.scss';
 
@@ -25,7 +26,7 @@ export const localStates = props => {
     useEffect(() => {
         if (!isConnected) return;
 
-        const wsUrl = `ws://localhost:8369/api/ws/${group}?clientId=${clientId.current}`;
+        const wsUrl = createWsUrl(group, clientId.current);
         socket.current = new WebSocket(wsUrl);
 
         console.log('Intentando conectar al WebSocket...');
