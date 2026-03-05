@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mediaUrl } from '../../../constants/api';
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -22,9 +23,7 @@ const ModelCard = ({ m, style, selectModelo, addToPendingCart, pendingCart }) =>
     };
 
     const getImageUrl = (url) => {
-        if (url.startsWith('http')) return url;
-        // The media router is included at /media in back/urls.py
-        return `http://localhost:8369/media/${url}`;
+        return mediaUrl(url);
     };
 
     return (

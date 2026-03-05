@@ -1,4 +1,5 @@
 import { localStates, localEffects } from './localStates';
+import { mediaUrl } from '../../../constants/api';
 import style from './styles/index.module.scss';
 
 export const Seg_Cotizaciones = () => {
@@ -125,9 +126,7 @@ export const Seg_Cotizaciones = () => {
                                     <div className={style.modeloImg}>
                                         {m.archivos && m.archivos.length > 0 ? (
                                             <img 
-                                                src={m.archivos[0].archivo_url.startsWith('http') 
-                                                    ? m.archivos[0].archivo_url 
-                                                    : `http://localhost:8369/media/${m.archivos[0].archivo_url}`} 
+                                                src={mediaUrl(m.archivos[0].archivo_url)} 
                                                 alt={m.nombre_modelo} 
                                             />
                                         ) : (

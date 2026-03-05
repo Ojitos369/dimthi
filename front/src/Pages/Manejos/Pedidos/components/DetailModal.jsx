@@ -1,4 +1,5 @@
 import React from 'react';
+import { mediaUrl } from '../../../../constants/api';
 
 export const DetailModal = ({ ls }) => {
     const { pedidoActual, closeDetail, style, openCommentModal, addCommentToPedido } = ls;
@@ -123,9 +124,9 @@ export const DetailModal = ({ ls }) => {
                                     {com.archivos && com.archivos.length > 0 && (
                                         <div style={{ marginTop: '8px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                                             {com.archivos.map(arch => (
-                                                <a key={arch.id} href={arch.archivo_url.startsWith('http') ? arch.archivo_url : `http://localhost:8368/media/${arch.archivo_url}`} target="_blank" rel="noreferrer">
+                                                <a key={arch.id} href={mediaUrl(arch.archivo_url)} target="_blank" rel="noreferrer">
                                                     <img 
-                                                        src={arch.archivo_url.startsWith('http') ? arch.archivo_url : `http://localhost:8368/media/${arch.archivo_url}`}
+                                                        src={mediaUrl(arch.archivo_url)}
                                                         style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #555' }}
                                                         alt="attachment"
                                                     />

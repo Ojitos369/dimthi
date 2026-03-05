@@ -3,12 +3,13 @@ import { f as ff } from "../fs";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { API_URL, mediaUrl, wsUrl } from "../../../constants/api";
 
 const MySwal = withReactContent(Swal);
-const link = 'http://localhost:8368/api/';
+
 axios.defaults.withCredentials = true;
 const miAxios = axios.create({
-    baseURL: link,
+    baseURL: API_URL,
 });
 
 // Interceptor para loader global
@@ -92,7 +93,7 @@ export const useBase = props => {
     const s = useSelector(state => state.fs.s);
     const updatesVars = updates();
     const { u0, u1, u2, u3, u4, u5, u6, u7, u8, u9 } = updatesVars;
-    const bases = { miAxios, MySwal, s, pjid };
+    const bases = { miAxios, MySwal, s, pjid, mediaUrl, wsUrl };
 
     const general = generalMod({ ...bases, ...updatesVars });
     const app = appMod({ ...bases, ...updatesVars });
@@ -101,7 +102,7 @@ export const useBase = props => {
     const pedidos = pedidosMod({ ...bases, ...updatesVars });
 
     return {
-        MySwal, miAxios,
+        MySwal, miAxios, mediaUrl, wsUrl,
         u0, u1, u2, u3, u4, u5, u6, u7, u8, u9,
         app, general, auth, calculadora, pedidos
     };

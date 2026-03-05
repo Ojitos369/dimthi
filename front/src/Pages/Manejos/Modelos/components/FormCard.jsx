@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileDropZone } from '../../../../Components/FileDropZone';
+import { mediaUrl } from '../../../../constants/api';
 
 export const FormCard = ({ ls }) => {
     const {
@@ -12,7 +13,7 @@ export const FormCard = ({ ls }) => {
 
     const resolveMediaUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `http://localhost:8369/media/${url}`;
+        return mediaUrl(url);
     };
 
     const handleDropFile = (files) => {

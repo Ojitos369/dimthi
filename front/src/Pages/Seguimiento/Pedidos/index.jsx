@@ -1,4 +1,5 @@
 import { localStates, localEffects } from './localStates';
+import { mediaUrl } from '../../../constants/api';
 import style from '../Cotizaciones/styles/index.module.scss'; // Reuse styling
 
 export const Seg_Pedidos = () => {
@@ -186,7 +187,7 @@ export const Seg_Pedidos = () => {
                                         {com.archivos && com.archivos.length > 0 && (
                                             <div style={{ marginTop: '8px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                                                 {com.archivos.map(arch => {
-                                                    const url = arch.archivo_url.startsWith('http') ? arch.archivo_url : `http://localhost:8368/media/${arch.archivo_url}`;
+                                                    const url = mediaUrl(arch.archivo_url);
                                                     const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(arch.archivo_url);
                                                     return (
                                                         <a key={arch.id} href={url} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
