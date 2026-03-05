@@ -1,5 +1,5 @@
 import { useStates, createState } from '../../../Hooks/useStates';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 
 export const localStates = () => {
     const { s, f } = useStates();
@@ -9,7 +9,7 @@ export const localStates = () => {
     const [loading, setLoading] = createState(['seg_pedidos', 'loading'], false);
     const [errorMsg, setErrorMsg] = createState(['seg_pedidos', 'errorMsg'], '');
     const [newComment, setNewComment] = createState(['seg_pedidos', 'newComment'], '');
-    const [commentFiles, setCommentFiles] = createState(['seg_pedidos', 'commentFiles'], []);
+    const [commentFiles, setCommentFiles] = useState([]);
     const [isSubmittingComment, setIsSubmittingComment] = createState(['seg_pedidos', 'isSubmittingComment'], false);
 
     const handleSearch = useCallback((e) => {
@@ -68,7 +68,7 @@ export const localStates = () => {
             }
         });
         
-    }, [newComment, resultado, f.pedidos, f.general, handleSearch]);
+    }, [newComment, commentFiles, resultado, f.pedidos, f.general, handleSearch, setIsSubmittingComment, setNewComment, setCommentFiles]);
 
     return {
         style: s.app?.style,
