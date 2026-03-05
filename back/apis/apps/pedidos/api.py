@@ -125,6 +125,8 @@ class GetPedidos(NoSession, BaseApi):
 class AddPedidoComentario(NoSession, BaseApi):
     def main(self):
         self.show_me()
+        print(f"Data received: {self.data}")
+        print(f"Has form: {hasattr(self, 'form')}, form: {getattr(self, 'form', None)}")
         pedido_id = self.data.get("pedido_id")
         comentario = self.data.get("comentario")
         is_admin = self.data.get("is_admin", False)
@@ -148,9 +150,13 @@ class AddPedidoComentario(NoSession, BaseApi):
         # Extract files from multipart form
         archivos = []
         if hasattr(self, 'form') and self.form:
-            for key, value in self.form.multi_items():
-                if key == "archivos" and hasattr(value, 'filename') and value.filename:
-                    archivos.append(value)
+            print(f"Form keys: {list(self.form.keys())}")
+            # Use getlist to get all files with the same key
+            archivos = self.form.getlist("archivos")
+            print(f"Archivos from getlist: {archivos}")
+            # Filter only actual files (not strings)
+            archivos = [f for f in archivos if hasattr(f, 'filename') and f.filename]
+            print(f"Archivos after filter: {archivos}")
             
         if archivos:
             query_archivos = "INSERT INTO pedido_archivos (id, comentario_id, archivo_url) VALUES (:id, :comentario_id, :archivo_url)"

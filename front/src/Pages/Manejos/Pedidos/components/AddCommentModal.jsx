@@ -12,6 +12,10 @@ export const AddCommentModal = ({ ls }) => {
         e.preventDefault();
         if (!commentText.trim() && files.length === 0) return;
 
+        console.log('Enviando comentario con archivos:', files);
+        console.log('Archivos como FormData:');
+        files.forEach((f, i) => console.log(`  ${i}: ${f.name}, size: ${f.size}`));
+        
         setSubmitting(true);
         await addCommentToPedido(commentPedidoId, commentText, files);
         setSubmitting(false);

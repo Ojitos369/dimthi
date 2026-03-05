@@ -76,13 +76,21 @@ export const localStates = () => {
         payload.append('comentario', commentText);
         payload.append('is_admin', true);
         
-        files.forEach(f => payload.append('archivos', f));
+        files.forEach((f, i) => {
+            console.log(`File ${i}:`, f, 'type:', typeof f, 'is File:', f instanceof File);
+            payload.append('archivos', f);
+        });
 
         return new Promise((resolve) => {
-            f.pedidos.addPedidoComentario(payload, () => {
+            f.pedidos.addPedidoComentario(payload, (res) => {
+                console.log('Comentario enviado, response:', res);
                 f.general.notificacion({ title: 'Enviado', message: 'Comentario agregado al kardex.', mode: 'success' });
                 f.pedidos.getPedidos({ limit: 50, page: page });
                 closeCommentModal();
+                resolve();
+            }, (err) => {
+                console.log('Error al enviar comentario:', err);
+                f.general.notificacion({ title: 'Error', message: 'No se pudo enviar el comentario', mode: 'error' });
                 resolve();
             });
         });

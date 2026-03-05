@@ -55,7 +55,13 @@ export const localStates = () => {
         payload.append('pedido_id', resultado.id);
         payload.append('comentario', newComment);
         payload.append('is_admin', false);
-        commentFiles.forEach(f => payload.append('archivos', f));
+        
+        console.log('Enviando comentario desde Seguimiento/Pedidos');
+        console.log('Archivos:', commentFiles);
+        commentFiles.forEach((f, i) => {
+            console.log(`  File ${i}:`, f, 'type:', typeof f, 'is File:', f instanceof File);
+            payload.append('archivos', f);
+        });
         
         f.pedidos.addPedidoComentario(payload, (res) => {
             setIsSubmittingComment(false);

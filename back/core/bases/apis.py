@@ -69,7 +69,11 @@ class BaseApi(ClassBase):
             if "multipart/form-data" in content_type:
                 form = await self.request.form()
                 self.form = form
-                data = {key: value for key, value in form.items()}
+                data = {}
+                for key, value in form.items():
+                    if hasattr(value, 'filename') and value.filename:
+                        continue
+                    data[key] = value
             else:
                 data = await self.request.json()
         except Exception as e:

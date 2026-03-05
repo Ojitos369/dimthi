@@ -18,14 +18,15 @@ export const pedidos = props => {
         .catch(err => { console.log(err); });
     };
 
-    const addPedidoComentario = (formData, callback) => {
-        miAxios.post('apps/pedidos/add_pedido_comentario', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        })
+    const addPedidoComentario = (formData, callback, errorCallback) => {
+        miAxios.post('apps/pedidos/add_pedido_comentario', formData)
         .then(res => {
             if (callback) callback(res.data);
         })
-        .catch(err => { console.log(err); });
+        .catch(err => { 
+            console.log(err); 
+            if (errorCallback) errorCallback(err);
+        });
     };
 
     const updatePedidoStatus = (data, callback) => {
