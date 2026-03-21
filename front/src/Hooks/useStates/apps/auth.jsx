@@ -1,5 +1,5 @@
 export const auth = props => {
-    const { miAxios, pjid, s, u1, u2, urs } = props
+    const { miAxios, pjid, s, u1, u2, urs, notificacion } = props
 
     const login = (usuario, passwd) => {
         if (s.loadings?.auth?.login) return;
@@ -29,8 +29,8 @@ export const auth = props => {
 
         }).catch(error => {
             console.log(error);
-            const message = error.response.data.detail || "error";
-            general.notificacion({
+            const message = error.response?.data?.detail || "error";
+            notificacion({
                 message,
                 title: "Error",
                 mode: "danger"
