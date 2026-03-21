@@ -77,7 +77,7 @@ function AppUI() {
 
     useEffect(() => {
         f.auth.validateLogin();
-    }, [location.href]);
+    }, []);
 
     return (
         <div className={`text-[var(--my-minor)] bg-my-${ls.theme}`}>
