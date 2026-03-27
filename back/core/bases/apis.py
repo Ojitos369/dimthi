@@ -49,7 +49,7 @@ class BaseApi(ClassBase):
             self.extra_error += f'\nIp de la petition: {self.petition_ip}'
             raise e
         except MYE as e:
-            error = self.ce.show_error(e, extra=self.extra_error)
+            error = self.ce.show_error(e, extra=self.extra_error, send_email=False)
             print_line_center(error)
             raise HTTPException(
                 status_code = status.HTTP_400_BAD_REQUEST,
