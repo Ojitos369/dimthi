@@ -1,1 +1,1 @@
-/home/ojitos369/Documents/Obsidian/OjosApps/Projects/dimthi/AGENTS.md
+../../../Obsidian/Agents/AGENTS.md

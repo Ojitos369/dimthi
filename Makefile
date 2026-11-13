@@ -1,1 +1,1 @@
-/home/ojitos369/Documents/Obsidian/OjosApps/Projects/dimthi/Makefile
+../../../Obsidian/Projects/OjosApps/dimthi/Makefile
